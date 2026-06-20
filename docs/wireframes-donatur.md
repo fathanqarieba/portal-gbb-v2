@@ -153,6 +153,11 @@
 
 ## 4. Data & Kegiatan Beswan
 
+> ℹ Ringkasan refleksi yang tampil ke donatur **dikurasi AI** — bukan jawaban mentah beswan.
+> AI membuang bagian yang terlalu privat, tidak pantas, atau tidak relevan dibaca donatur,
+> dan menyajikan narasi progress. Jika AI gagal/kuota habis → tampil apa adanya & tim
+> internal di-email untuk review manual. Detail: PRD §7 D4 + implementation_plan AI section.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Data & Kegiatan Beswan                                         │

@@ -219,7 +219,9 @@ Table event_beswan {
 Table feedback_event {
   id varchar [pk]
   event_id varchar [ref: > event.id]
-  beswan_id varchar [ref: > beswan.id]
+  beswan_id varchar [ref: > beswan.id, note: 'nullable — feedback bisa dari peserta eksternal (Growth), bukan hanya beswan']
+  nama_responden varchar [note: 'nullable — nama dari Google Form jika responden bukan beswan']
+  email_responden varchar [note: 'nullable — email dari Google Form jika responden bukan beswan']
   rating int
   catatan text
   submitted_at timestamp
@@ -307,6 +309,12 @@ Table refleksi {
   tahun int
   status varchar [note: 'draft | submitted']
   submitted_at timestamp
+
+  // Ringkasan untuk Portal Donatur — DIKURASI AI agar donatur tidak baca refleksi mentah.
+  // AI membuang konten privat/sensitif, tidak pantas, menyerang GBB, atau menunjukkan akhlak
+  // buruk beswan. Di-generate sekali saat submit & di-cache (hemat token, pola sama Library).
+  ringkasan_donatur text [note: 'nullable — narasi progress beswan layak-donatur hasil kurasi AI']
+  ringkasan_status varchar [note: 'pending | curated | fallback — fallback = AI gagal/kuota habis, donatur lihat jawaban mentah & tim internal di-email']
 }
 
 // Jawaban per pertanyaan — di-link via pertanyaan_id (bukan kolom fixed)

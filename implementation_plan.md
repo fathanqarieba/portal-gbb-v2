@@ -189,6 +189,9 @@ flowchart TD
 | **Prestasi alert** | Wajib update per kuartal |
 | **IPK update** | Beswan wajib update IP/IPK + transkrip tiap semester di Profile (1 entri per `periode_id`, tabel `beswan_ipk`). Alert di Beranda + email reminder. Sumber "Avg IPK" internal & IPK di Portal Donatur |
 | **Donatur visibility** | Hanya lihat beswan dari periode di mana ia aktif |
+| **Refleksi → donatur (AI curate)** | Donatur lihat ringkasan refleksi **hasil kurasi AI** (buang konten privat/tak pantas/menyerang GBB/akhlak buruk), cache di `refleksi.ringkasan_donatur`. AI gagal/kuota habis → verbatim + email `INTERNAL_ALERT_EMAILS`. Lihat [Kurasi Refleksi untuk Donatur](#kurasi-refleksi-untuk-donatur-ai) |
+| **Greeting (beswan & donatur)** | Auto ganti tiap hari, **if-else (5 variasi), tanpa AI** |
+| **Feedback event** | `feedback_event.beswan_id` **nullable** — feedback bisa dari peserta eksternal (Growth), simpan `nama_responden`/`email_responden` |
 | **Mentor privacy** | Portal Beswan: tanpa HP & CV |
 | **Login beswan** | Email + password (generated) |
 | **Login donatur** | Gmail OAuth. Auto-match `donatur.email` → set `donatur.user_id`. Jika email tidak cocok: login sukses tapi akun belum terhubung. **Admin-link fallback**: AnC bisa manual set `donatur.user_id` di Database Donatur (dropdown user yang belum ter-link). Banner info di Beranda Donatur saat pertama login |
@@ -395,10 +398,12 @@ flowchart TD
 
 ## AI Provider Configuration
 
-Fitur AI (sekarang: auto-summary + auto-tag Library) memanggil provider yang dipilih admin di **Settings → Konfigurasi AI**. Konfigurasi disimpan di tabel `ai_config`.
+Fitur AI memanggil provider yang dipilih admin di **Settings → Konfigurasi AI**. Konfigurasi disimpan di tabel `ai_config`. **Konsumen AI:**
+1. **Auto-summary + auto-tag Library** (saat upload materi)
+2. **Kurasi ringkasan refleksi untuk Portal Donatur** (saat beswan submit refleksi) — lihat [Kurasi Refleksi untuk Donatur](#kurasi-refleksi-untuk-donatur-ai)
 
 ### Arsitektur adapter
-- Interface `AiProvider { summarize(text), tag(text) }` dengan 2 implementasi:
+- Interface `AiProvider { summarize(text), tag(text), curate(text, rules) }` dengan 2 implementasi:
   - **`anthropic`** — Anthropic SDK native (default; model Claude terbaru)
   - **`openai_compatible`** — OpenAI SDK dengan `base_url` + `model` + `apiKey` custom → satu adapter ini menjangkau **OpenAI, Google Gemini (endpoint OpenAI-compat), OpenRouter (ratusan model), DeepSeek, Groq, LM Studio/Ollama lokal**, dll
 - Tambah provider baru = tambah/atur baris `ai_config`, **tanpa ubah kode** (selama OpenAI-compatible)
@@ -412,6 +417,37 @@ Fitur AI (sekarang: auto-summary + auto-tag Library) memanggil provider yang dip
 - `api_key` **dienkripsi at-rest** (mis. AES dengan app secret), didekripsi **hanya di server**, tidak pernah ke client / log (NFR §12)
 - **Fallback**: jika API gagal/timeout, materi tetap tersimpan **tanpa** summary/tag (non-blocking), ditandai "AI pending", bisa retry manual
 - **Hemat biaya**: summary dibuat **sekali saat upload**, hasil disimpan di `library.ai_summary` (tidak panggil ulang tiap view)
+
+### Kurasi Refleksi untuk Donatur (AI)
+
+Donatur **tidak** boleh membaca refleksi mentah beswan. AI mengubahnya jadi ringkasan layak-donatur.
+
+| Item | Detail |
+|------|--------|
+| **Trigger** | Saat beswan **submit** refleksi (atau cron batch untuk yang `pending`) |
+| **Input** | Jawaban refleksi bulan tsb (field naratif: kegiatan, prestasi, insight, dll) |
+| **Aturan kurasi (prompt)** | Buang/ samarkan: (a) info terlalu privat/sensitif, (b) konten tidak pantas dibaca donatur, (c) yang menyerang/menjelekkan GBB, (d) yang menunjukkan akhlak buruk beswan. Output = narasi progress singkat, jujur, sopan |
+| **Simpan** | `refleksi.ringkasan_donatur` (text) + `refleksi.ringkasan_status` (`pending`/`curated`/`fallback`). Di-cache — tidak panggil ulang tiap donatur buka |
+| **Tampil ke donatur** | Portal Donatur §D4 menampilkan `ringkasan_donatur` (status `curated`). Status `fallback` → tampilkan jawaban apa adanya (verbatim) |
+| **Fallback (AI gagal/kuota habis)** | (1) set `ringkasan_status = fallback` → donatur lihat verbatim; (2) **kirim email peringatan ke SELURUH tim internal** (lihat Internal Alert Distribution) agar segera cek/perbaiki provider AI & review manual |
+
+### Internal Alert Distribution (AI gagal / kuota habis)
+
+Email peringatan dikirim ke seluruh tim internal. Daftar disimpan sebagai env config `INTERNAL_ALERT_EMAILS` (bukan hardcode), seed awal:
+
+```
+alumnicollaboration@baikberdampak.org
+dewijihan@baikberdampak.org
+digital@baikberdampak.org
+fathan@baikberdampak.org
+itsupport@baikberdampak.org
+legalfinance@baikberdampak.org
+people@baikberdampak.org
+program@baikberdampak.org
+riskypriscilia@baikberdampak.org
+```
+
+> Dipakai juga untuk peringatan operasional lain ke tim internal (mis. AI Library gagal berulang, sync error). Idempoten: jangan spam — cukup 1 email per insiden/window (lihat Idempotensi cron).
 
 ---
 
@@ -574,7 +610,7 @@ GBB/
 │   │   ├── internal/               # Portal Internal (isolated)
 │   │   │   ├── layout.tsx
 │   │   │   └── pages/              # 1 folder per halaman
-│   │   │       ├── dashboard/      # index + EventTab + TrendDonaturTab + GrowthTab
+│   │   │       ├── dashboard/      # index + EventTab + BeswanTab + TrendDonaturTab + GrowthTab
 │   │   │       ├── beswan/         # index + Table + Detail + Rapor
 │   │   │       ├── kurikulum/
 │   │   │       ├── mentor/
@@ -658,7 +694,7 @@ GBB/
 - **1D** Database Mentor (metrics, table, detail, feedback)
 - **1E** Event Talkshow (metrics, table, create wizard, alert)
 - **1F** Penugasan (master-detail, create wizard, grading)
-- **1G** Dashboard (3 tabs: Event, Trend Donatur, Growth)
+- **1G** Dashboard (4 tabs: Event, Beswan, Trend Donatur, Growth)
 - **1H** Keuangan (BSI upload, klasifikasi, master kategori, Overview Keuangan)
 - **1I** Monitoring Donatur & Laporan
 - **1J** PWA: offline snapshot caching untuk dashboard
@@ -750,6 +786,14 @@ Mekanisme:
 | 4 | **Reminder refleksi** | Tanggal 25 setiap bulan, jika belum submit | Cron |
 | 5 | **Reminder prestasi** | Minggu terakhir kuartal (Mar/Jun/Sep/Des) | Cron |
 | 6 | **Event reminder** | H-1 sebelum event | Cron |
+| 7 | **Reminder IPK** | Awal semester (10 Jan & 10 Jul), jika belum update IPK periode berjalan | Cron |
+
+### Notifikasi Tim Internal (Email)
+
+| # | Trigger | Penerima | Tipe |
+|---|---------|----------|------|
+| 1 | **AI gagal / kuota habis** (kurasi refleksi atau summary Library) | **Semua** tim internal (`INTERNAL_ALERT_EMAILS`) | Instant (idempoten, 1×/insiden) |
+| 2 | **Donatur belum diklasifikasi** ke periode | Admin AnC | Cron (awal semester) |
 
 ### Notifikasi Donatur (Email)
 
@@ -811,7 +855,7 @@ Semua item desain sudah final. Referensi:
 | Item | File | Status |
 |------|------|--------|
 | **ERD** | `docs/erd.dbml` | ✅ 31 tabel, 10 groups |
-| **Wireframes Internal** | `docs/wireframes-internal.md` | ✅ 12 halaman |
+| **Wireframes Internal** | `docs/wireframes-internal.md` | ✅ 13 halaman |
 | **Wireframes Beswan** | `docs/wireframes-beswan.md` | ✅ 5 halaman |
 | **Wireframes Donatur** | `docs/wireframes-donatur.md` | ✅ 6 halaman |
 | **Color Palette & Design** | `docs/colorpalette.md` | ✅ Full design system |

@@ -13,7 +13,7 @@ Spesifikasi & rencana implementasi **Portal Web Beasiswa Baik Berdampak (GBB)** 
 | [PRD.md](PRD.md) | **Mulai dari sini.** Produk, user roles & matriks akses, user flow per portal, business rules, NFR, scalability, quality harness, onboarding tour |
 | [implementation_plan.md](implementation_plan.md) | Tech stack, arsitektur, fase build, struktur folder, parsing engine, cron, file limits, konfigurasi AI, verifikasi |
 | [docs/erd.dbml](docs/erd.dbml) | Skema database (**31 tabel, 10 group**) — buka di [dbdiagram.io](https://dbdiagram.io) |
-| [docs/wireframes-internal.md](docs/wireframes-internal.md) | Wireframe Portal Internal (12 halaman) |
+| [docs/wireframes-internal.md](docs/wireframes-internal.md) | Wireframe Portal Internal (13 halaman) |
 | [docs/wireframes-beswan.md](docs/wireframes-beswan.md) | Wireframe Portal Beswan (5 halaman) |
 | [docs/wireframes-donatur.md](docs/wireframes-donatur.md) | Wireframe Portal Donatur (6 halaman) |
 | [docs/colorpalette.md](docs/colorpalette.md) | Design system & token warna (light theme, selaras baikberdampak.org) |

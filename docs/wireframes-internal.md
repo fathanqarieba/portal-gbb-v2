@@ -11,6 +11,7 @@
 │  SIDEBAR   │                    CONTENT AREA                         │
 │            │                                                         │
 │  📊 Dashboard   │                                                    │
+│  🗓 Periode     │                                                    │
 │  👥 Beswan      │                                                    │
 │  📚 Kurikulum   │                                                    │
 │  🎓 Mentor      │                                                    │
@@ -18,13 +19,15 @@
 │  📝 Penugasan   │                                                    │
 │  💰 Keuangan ▼  │                                                    │
 │    Rekonsiliasi  │                                                    │
+│    Overview      │                                                    │
 │    Db Donatur    │                                                    │
 │    Monitoring    │                                                    │
 │  📄 Laporan     │                                                    │
 │            │                                                         │
 │  ─────────── │                                                       │
 │  ⚙ Settings │                                                       │
-│  Periode: BBB4 ▼│                                                    │
+│  Filter Periode:│                                                    │
+│  BBB4 ▼         │                                                    │
 └────────────┴─────────────────────────────────────────────────────────┘
 ```
 
@@ -32,7 +35,7 @@
 
 ## 1. Dashboard
 
-> 3 tab: **Event** (data dari portal), **Trend Donatur** (data dari GSheets pendaftaran donatur), **Growth** (data dari GForm pendaftaran event)
+> 4 tab: **Event** (data dari portal), **Beswan** (analitik pembinaan beswan — untuk PCM), **Trend Donatur** (data dari GSheets pendaftaran donatur), **Growth** (data dari GForm pendaftaran event)
 
 ### Tab: Event
 
@@ -40,7 +43,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │  Dashboard                                       [↻ Refresh]    │
 │                                                                 │
-│  [Tab: Event] [Tab: Trend Donatur] [Tab: Growth]                │
+│  [Tab: Event] [Tab: Beswan] [Tab: Trend Donatur] [Tab: Growth]  │
 │                                                                 │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
 │  │ 📊 12    │ │ ✅ 8     │ │ 👥 15    │ │ 💰 4.2jt │           │
@@ -65,6 +68,48 @@
 │  └─────────────────────────┘                                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### Tab: Beswan
+
+> Analitik pembinaan beswan untuk tim PCM — agregat (kumulatif) + bisa drill per beswan per periode.
+> Sumber: `event_beswan` (kehadiran), `hasil_penugasan` (nilai), `refleksi` (completion), `beswan_ipk` (IPK), `prestasi`.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Dashboard › Beswan                              [↻ Refresh]    │
+│  Filter: [BBB4 (Jan–Jun 2026) ▼]   Lihat: (•) Agregat ( ) Per Beswan │
+│                                                                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
+│  │ 👥 15    │ │ 📊 83%   │ │ 🎓 3.45  │ │ 📝 78%   │           │
+│  │ Beswan   │ │ Avg      │ │ Avg IPK  │ │ Refleksi │           │
+│  │ Aktif    │ │ Kehadiran│ │          │ │ On-time  │           │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
+│                                                                 │
+│  ┌─────────────────────────┐ ┌─────────────────────────────────┐│
+│  │ Tren Kehadiran /bln     │ │ Refleksi Completion /bln        ││
+│  │ (line, kumulatif)       │ │ (stacked bar: sudah/belum)      ││
+│  │  ╱▔▔▔╲___╱              │ │  ▓▓░ ▓▓▓ ▓░░ ▓▓░               ││
+│  │  Jan Feb Mar Apr        │ │  Jan Feb Mar Apr                ││
+│  └─────────────────────────┘ └─────────────────────────────────┘│
+│                                                                 │
+│  ┌─────────────────────────┐ ┌─────────────────────────────────┐│
+│  │ Distribusi IPK          │ │ Rata-rata Nilai Tugas /batch    ││
+│  │ (bar: <3.0,3.0-3.5,>3.5)│ │ (bar per batch)                 ││
+│  └─────────────────────────┘ └─────────────────────────────────┘│
+│                                                                 │
+│  ═══ Tabel Progress per Beswan (klik → detail) ═══════════════  │
+│  ┌────────────────┬──────┬──────┬────────┬──────┬─────────────┐ │
+│  │ Nama           │ Hadir│ Tugas│Refleksi│ IPK  │ Prestasi    │ │
+│  ├────────────────┼──────┼──────┼────────┼──────┼─────────────┤ │
+│  │ Ahmad Fauzi    │ 83%  │ 85   │ 4/5    │ 3.45 │ 2           │ │
+│  │ Siti Nurhaliza │ 92%  │ 88   │ 5/5    │ 3.78 │ 3           │ │
+│  └────────────────┴──────┴──────┴────────┴──────┴─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+> **Mode "Per Beswan"**: pilih 1 beswan → tampil progress chart kumulatif lintas periode (kehadiran, nilai tugas, IPK per semester, refleksi completion). Sama dengan grafik di tab Rapor (Detail Beswan §2a), dipakai PCM untuk mengolah/mengevaluasi tiap beswan.
+
+---
 
 ### Tab: Trend Donatur
 
@@ -154,6 +199,31 @@
 
 ---
 
+## 1b. Konfigurasi Periode
+
+> Setup batch/periode (Step 1.1). Akses: Super Admin ✏️, PCM 👁. Bisa **>1 periode aktif**.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Konfigurasi Periode                              [+ Tambah]    │
+│                                                                 │
+│  ┌────┬──────────────────────┬──────────┬──────────┬────────┬───┐│
+│  │ ID │ Nama (display)       │ Mulai    │ Selesai  │ Status │Aks││
+│  ├────┼──────────────────────┼──────────┼──────────┼────────┼───┤│
+│  │ 4  │ BBB #4 (Jan–Jun 2026)│ 01/01/26 │ 30/06/26 │ Aktif  │✏🗑││
+│  │ 3  │ BBB #3 (Jul–Des 2025)│ 01/07/25 │ 31/12/25 │ Aktif  │✏🗑││
+│  │ 2  │ BBB #2 (Jan–Jun 2025)│ 01/01/25 │ 30/06/25 │ Selesai│✏🗑││
+│  └────┴──────────────────────┴──────────┴──────────┴────────┴───┘│
+│                                                                 │
+│  ── Tambah Periode (auto-suggest dari periode terakhir) ─────── │
+│  Nama batch: [BBB5]   Semester: (•) Jan–Jun  ( ) Jul–Des       │
+│  Mulai: [01/07/2026]  Selesai: [31/12/2026]                    │
+│  Status: [Aktif ▼]                              [Batal][Simpan] │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 2. Database Beswan
 
 > **Avg IPK** = rata-rata IPK kumulatif terbaru beswan aktif, dari `beswan_ipk` (beswan update tiap semester di Portal Beswan → Profile).
@@ -197,9 +267,17 @@
 │  [Tab: Rapor] [Tab: Absensi] [Tab: Tugas] [Tab: Refleksi]      │
 │                                                                 │
 │  ── Rapor ──────────────────────────────────────────────────── │
+│  Periode: [BBB4 ▼]   (multi-batch → pilih periode)              │
 │  Kehadiran: 10/12 event (83%)  ████████░░                      │
 │  Tugas: 5/6 submitted, avg nilai 85                            │
 │  Refleksi: 4/5 bulan submitted                                 │
+│                                                                 │
+│  ── Progress Chart (per beswan × periode terpilih) ─────────── │
+│  ┌─────────────────────────┐ ┌─────────────────────────────────┐│
+│  │ Kehadiran & Nilai /bln  │ │ IPK per Semester (kumulatif)    ││
+│  │ (line ganda)            │ │ (line lintas periode)           ││
+│  │  ╱▔╲╱▔                  │ │  3.2→3.4→3.45                   ││
+│  └─────────────────────────┘ └─────────────────────────────────┘│
 │                                                                 │
 │  ── Absensi per Event ──────────────────────────────────────── │
 │  │ Event                    │ Tanggal    │ Status   │          │

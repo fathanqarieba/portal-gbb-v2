@@ -70,7 +70,7 @@ Portal web terpusat di `portal.baikberdampak.org` yang:
 
 | Modul | Super Admin | Admin Program (PCM) | Admin Finance | Admin AnC | Viewer |
 |-------|:-----------:|:-------------------:|:-------------:|:---------:|:------:|
-| Dashboard (3 tab) | ✏️ | 👁 | 👁 | 👁 | 👁 |
+| Dashboard (4 tab) | ✏️ | 👁 | 👁 | 👁 | 👁 |
 | Konfigurasi Periode | ✏️ | 👁 | — | — | — |
 | Beswan (data/absensi/rapor) | ✏️ | ✏️ | — | 👁 | 👁 |
 | Kurikulum & Library | ✏️ | ✏️ | — | 👁 | 👁 |
@@ -106,12 +106,20 @@ Single login → diarahkan ke portal sesuai role
 
 ## 5. FLOW PORTAL — Actor 1: Tim Internal
 
-### Dashboard Internal (3 tab)
+### Dashboard Internal (4 tab)
 
 #### Tab: Event
 - Metric cards: Total Event, Selesai, Beswan Aktif, Donasi Bulan Ini
 - Chart: Event per Bulan (bar), Kehadiran Beswan (pie + progress), Penugasan Overview
 - Sumber data: tabel `event`, `event_beswan`, `penugasan`, `cashflow`
+
+#### Tab: Beswan
+- **Untuk tim PCM mengolah & mengevaluasi pembinaan beswan**
+- Metric cards: Beswan Aktif, Avg Kehadiran, Avg IPK, Refleksi On-time
+- Chart (agregat/**kumulatif**): Tren Kehadiran per bulan, Refleksi Completion per bulan, Distribusi IPK, Rata-rata Nilai Tugas per batch
+- Tabel progress per beswan (kehadiran, nilai, refleksi, IPK, prestasi) → klik untuk detail
+- Mode **Per Beswan**: pilih 1 beswan → progress chart kumulatif lintas periode (sama dengan tab Rapor di Detail Beswan) — **bisa dilihat per beswan per periode**
+- Sumber data: `event_beswan`, `hasil_penugasan`, `refleksi`, `beswan_ipk`, `prestasi`
 
 #### Tab: Trend Donatur
 - Metric cards: Total Estimasi Komitmen, Total Calon Donatur
@@ -369,6 +377,7 @@ Single login → diarahkan ke portal sesuai role
 
 #### Step B2 — Beranda
 - Greeting otomatis tiap hari (if-else 5 variasi, tanpa AI)
+- **Progress Saya**: metric (kehadiran, avg nilai, refleksi, IPK) + chart tren bulanan & IPK per semester (**kumulatif**); filter per periode jika multi-batch
 - My Events (aktif & history)
 - My Tasks (pending & history)
 - Notifikasi: tugas baru, tugas dinilai, pengingat refleksi, **pengingat update IPK semester**
@@ -425,7 +434,7 @@ Single login → diarahkan ke portal sesuai role
 - **Fallback admin-link**: Admin AnC bisa **menghubungkan akun Gmail secara manual** di Database Donatur (field `user_id` di tabel `donatur` di-set ke user yang login). Ini menangani kasus email berbeda tanpa harus ubah data di Google Sheets
 
 #### Step D2 — Beranda
-- Greeting otomatis tiap hari
+- Greeting otomatis tiap hari (if-else variasi, tanpa AI — sama seperti Beswan)
 - **Info banner** (dismissible, tampil saat pertama login): "Pastikan email Gmail yang kamu pakai login sama dengan email saat mengisi form bit.ly/AlumniMauBantu. Jika berbeda, hubungi Tim AnC agar akun dihubungkan."
 - Total donasi, history konsistensi per bulan/batch, batch yang diikuti
 - **Akses data beswan = sesuai periode yang di-assign oleh AnC** melalui `donatur_periode`. Donatur hanya melihat beswan dari periode di mana ia aktif
@@ -439,8 +448,14 @@ Single login → diarahkan ke portal sesuai role
 
 #### Step D4 — Data & Kegiatan Beswan
 - Hanya lihat beswan dari periode di mana donatur aktif
-- Per beswan: nama, update kegiatan, prestasi, refleksi (summary)
+- Per beswan: nama, update kegiatan, prestasi, **refleksi (ringkasan dikurasi AI)**
 - Filter per periode/batch
+
+**Refleksi untuk donatur = dikurasi AI (bukan jawaban mentah beswan):**
+- Donatur **tidak** membaca refleksi mentah. AI meringkas jadi narasi progress yang **membuang** konten: terlalu privat/sensitif, tidak pantas dibaca donatur, menyerang/menjelekkan GBB, atau menunjukkan akhlak buruk beswan
+- **Kapan**: di-generate **sekali saat beswan submit refleksi** (atau cron batch), hasil di-cache di `refleksi.ringkasan_donatur` — hemat token (pola sama AI summary Library)
+- **Fallback**: jika AI gagal / token/kuota habis → donatur tetap melihat ringkasan **apa adanya (verbatim)**, ditandai `ringkasan_status = fallback`, **dan seluruh tim internal di-email** agar segera cek/perbaiki provider AI
+- Provider AI sama dengan Library (Settings → Konfigurasi AI). Konsumen AI ke-2
 
 #### Step D5 — Daftar Mentor (CTA)
 - Info program mentoring, metric jumlah mentor
@@ -469,6 +484,7 @@ Single login → diarahkan ke portal sesuai role
 | **Refleksi alert** | Wajib bulanan, terkoneksi periode batch |
 | **Prestasi alert** | Wajib update per kuartal |
 | **IPK update** | Beswan wajib update IP/IPK + transkrip tiap semester di Profile (1 entri per periode, tabel `beswan_ipk`). Alert + email reminder jika belum. Sumber "Avg IPK" internal & IPK di Portal Donatur |
+| **Refleksi → donatur (AI curate)** | Ringkasan refleksi untuk donatur **dikurasi AI** (buang konten privat/tak pantas/menyerang GBB/akhlak buruk). Di-generate sekali saat submit, cache di `refleksi.ringkasan_donatur`. AI gagal/kuota habis → tampil verbatim (`ringkasan_status=fallback`) **+ email ke semua tim internal** |
 | **Donatur visibility** | Hanya lihat beswan dari periode di mana ia aktif (scope via `donatur_periode`) |
 | **Donatur klasifikasi** | AnC wajib meng-assign donatur ke periode (`donatur_periode`). Donatur tanpa periode = belum diklasifikasi → **alert di Monitoring & Database Donatur** agar segera di-assign |
 | **Donatur update musiman** | Tiap awal semester (Juli-Agustus, Desember-Januari), AnC harus **update manual** keikutsertaan donatur: siapa yang lanjut, siapa berhenti, siapa baru. Reminder otomatis tampil di dashboard |
@@ -489,7 +505,7 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 | Artefak | Lokasi | Status |
 |---------|--------|--------|
 | ERD (31 tabel, 10 group) | `docs/erd.dbml` | ✅ |
-| Wireframe Internal (12 halaman) | `docs/wireframes-internal.md` | ✅ |
+| Wireframe Internal (13 halaman) | `docs/wireframes-internal.md` | ✅ |
 | Wireframe Beswan (5 halaman) | `docs/wireframes-beswan.md` | ✅ |
 | Wireframe Donatur (6 halaman) | `docs/wireframes-donatur.md` | ✅ |
 | Color Palette & Design System | `docs/colorpalette.md` | ✅ |
@@ -528,7 +544,7 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 |------|---------------|---------|
 | 1 | Sidebar | "Ini sidebar navigasi. Semua menu portal bisa diakses dari sini." |
 | 2 | Periode selector (sidebar bawah) | "Pilih periode aktif di sini. Semua data di portal akan terfilter sesuai periode yang dipilih." |
-| 3 | Dashboard tab | "Dashboard punya 3 tab: Event untuk operasional, Trend Donatur untuk data pendaftaran, dan Growth untuk analitik peserta event." |
+| 3 | Dashboard tab | "Dashboard punya 4 tab: Event (operasional), Beswan (analitik pembinaan untuk PCM), Trend Donatur (data pendaftaran), dan Growth (analitik peserta event)." |
 | 4 | Notifikasi bell | "Klik bell untuk melihat notifikasi terbaru. Badge merah = ada yang belum dibaca." |
 | 5 | Menu Beswan | "Kelola data beswan di sini — tambah beswan, lihat detail profil, absensi, tugas, dan generate rapor." |
 | 6 | Menu Kurikulum | "Susun topik pembinaan per periode. Topik yang kamu buat akan jadi pilihan saat membuat event." |
