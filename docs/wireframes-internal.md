@@ -470,14 +470,49 @@
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌─── DETAIL (Hasil Beswan — TGS-02) ───────────────────────┐  │
-│  │ Tugas: Essay Speaking | Deadline: 30/09 | Event: EVT-02   │  │
-│  │                                                            │  │
-│  │ Nama            │ Status      │ File  │ Nilai │ Feedback   │  │
-│  │ Ahmad Fauzi     │ ✅ graded   │ 📎    │ 85    │ "Bagus..." │  │
-│  │ Siti Nurhaliza  │ 📤 submitted│ 📎    │ —     │ [Nilai]    │  │
-│  │ Budi Santoso    │ ⏳ belum    │ —     │ —     │ —          │  │
-│  │ Dewi Kartika    │ 📤 submitted│ 📎    │ —     │ [Nilai]    │  │
+│  │ Essay Speaking · Deadline 30/09 17:00 · Maks 100 · EVT-02 │  │
+│  │ Filter: ( ) Semua  (•) Belum dinilai      Terkumpul 10/15 │  │
+│  │ Nama             │ Status         │File│ Nilai  │ Aksi    │  │
+│  │ Ahmad Fauzi      │ ✅ graded      │ 📎 │ 85/100 │ ✏ Revisi│  │
+│  │ Siti Nurhaliza   │ 📤 submitted   │ 📎 │  —     │ [Nilai] │  │
+│  │ Joko Susilo      │ ⏰ terlambat   │ 📎 │  —     │ [Nilai] │  │
+│  │ Budi Santoso     │ ⏳ belum kumpul│ —  │  —     │ —        │  │
 │  └───────────────────────────────────────────────────────────┘  │
+│  Status: ⏳ belum kumpul · 📤 submitted · ⏰ terlambat · ✅ graded│
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 7a. Buat / Edit Penugasan (Wizard / Modal)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Buat Penugasan                                                 │
+│  Batch/Periode: [BBB4 ▼]   Event sumber: [EVT-02 ▼ / —]        │
+│  (kosongkan event = tugas non-event)   Kode auto: TGS-BBB4-05  │
+│                                                                 │
+│  Judul:     [_______________________________]                   │
+│  Soal/Deskripsi: [textarea]                                     │
+│  Lampiran soal (opsional): [📎 Upload PDF/DOCX]                 │
+│  Deadline:  [__/__/__]  [__:__]      Nilai maksimum: [100]      │
+│                                       [Batal] [Publish Tugas]   │
+│  ℹ Publish → muncul ke semua beswan periode + email "tugas baru"│
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 7b. Nilai & Feedback (Modal per beswan)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Nilai — Ahmad Fauzi · TGS-02 Essay Speaking          [✕]     │
+│  Submit: 29/09 14:20 (tepat waktu)   File: 📎 essay.pdf [👁]    │
+│                                                                 │
+│  Nilai (0–100): [ 85 ]                                          │
+│  Feedback:      ┌──────────────────────────────────────────┐    │
+│                 │ Struktur argumen bagus, tambah data…     │    │
+│                 └──────────────────────────────────────────┘    │
+│                                  [Batal] [Simpan & Beri Nilai]  │
+│  ℹ Simpan → status graded + email "tugas dinilai" ke beswan.    │
+│    Nilai bisa direvisi kapan saja.                              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

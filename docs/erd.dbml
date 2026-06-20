@@ -258,25 +258,36 @@ Table penugasan {
   event_id varchar [ref: > event.id, note: 'nullable — non-event jika null']
   periode_id varchar [ref: > periode.id]
   judul varchar
-  deskripsi text
-  deadline date
+  deskripsi text [note: 'soal/instruksi tugas']
+  lampiran_url varchar [note: 'nullable — file soal/brief tugas (PDF/DOCX), opsional']
+  deadline timestamp [note: 'tanggal + jam batas kumpul']
+  nilai_maks int [default: 100, note: 'skala nilai maksimum (default 100)']
   created_by varchar [ref: > users.id]
-  status varchar [note: 'aktif | selesai | expired']
+  status varchar [note: 'aktif | selesai — selesai = ditutup PCM, tak terima submission lagi']
   created_at timestamp
+  updated_at timestamp [note: 'nullable — diisi jika tugas diedit setelah publish']
 }
 
+// 1 row = 1 beswan × 1 penugasan, dibuat SAAT beswan submit (bukan saat publish).
+// "belum_kumpul" = state VIRTUAL: beswan periode yang belum punya row di sini
+// (list view = left-join beswan_periode ⟕ hasil_penugasan).
 Table hasil_penugasan {
   id varchar [pk]
   penugasan_id varchar [ref: > penugasan.id]
   beswan_id varchar [ref: > beswan.id]
-  file_url varchar
+  file_url varchar [note: '1 file jawaban (PDF/DOCX/dll)']
   submitted_at timestamp
-  status varchar [note: 'submitted | graded | late | belum_kumpul']
+  terlambat boolean [default: false, note: 'true jika submitted_at > penugasan.deadline — tetap diterima, ditandai badge Terlambat']
+  status varchar [note: 'submitted | graded (belum_kumpul = virtual, lihat catatan tabel)']
 
-  nilai float [note: 'nullable — diisi setelah dinilai']
-  feedback text [note: 'nullable — feedback per beswan dari enabler']
+  nilai float [note: 'nullable — diisi setelah dinilai; 0..penugasan.nilai_maks']
+  feedback text [note: 'nullable — feedback per beswan dari enabler/PCM']
   graded_at timestamp
-  graded_by varchar [ref: > users.id, note: 'nullable']
+  graded_by varchar [ref: > users.id, note: 'nullable — penilai terakhir (nilai bisa direvisi)']
+
+  indexes {
+    (penugasan_id, beswan_id) [unique]
+  }
 }
 
 // ─── REFLEKSI & PRESTASI ─────────────────────────────

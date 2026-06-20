@@ -184,7 +184,9 @@ flowchart TD
 | **Donatur kolom periode auto** | Kolom periode baru otomatis muncul di Database Donatur saat periode baru dikonfigurasi |
 | **Kode donatur** | Auto-generated: `[Inisial][Semester][Tahun]`. Detail di bawah |
 | **Absensi** | Dicatat oleh tim internal, bukan beswan |
-| **Penugasan submit** | Setelah submit, tidak bisa edit ulang |
+| **Penugasan — buat** | PCM input judul, soal, **lampiran soal** (opsional PDF/DOCX), deadline (tanggal+jam), `nilai_maks` (default 100). Publish → notif "tugas baru" + email ke semua beswan periode. Bisa diedit/dihapus setelah publish |
+| **Penugasan submit** | 1 file jawaban; **tidak bisa edit ulang** setelah submit. Submit > deadline = diterima + `terlambat=true`. `belum_kumpul` = virtual (left-join `beswan_periode` ⟕ `hasil_penugasan`) |
+| **Penugasan nilai** | Skala **0–nilai_maks** + feedback teks → status `graded` + notif/email "tugas dinilai". Bisa **direvisi** (catat `graded_by`/`graded_at` terakhir). Endpoint `PATCH /hasil-penugasan/:id` |
 | **Refleksi alert** | Wajib bulanan, terkoneksi periode batch |
 | **Prestasi alert** | Wajib update per kuartal |
 | **IPK update** | Beswan wajib update IP/IPK + transkrip tiap semester di Profile (1 entri per `periode_id`, tabel `beswan_ipk`). Alert di Beranda + email reminder. Sumber "Avg IPK" internal & IPK di Portal Donatur |
@@ -295,7 +297,8 @@ flowchart TD
 | **CV Beswan** | PDF | 5 MB |
 | **CV Mentor** | PDF | 5 MB |
 | **Foto Beswan** | JPG, PNG | 2 MB |
-| **Penugasan (submit)** | PDF, DOCX, XLSX, PPTX | 10 MB |
+| **Penugasan — lampiran soal** | PDF, DOCX | 10 MB |
+| **Penugasan (submit jawaban)** | PDF, DOCX, XLSX, PPTX | 10 MB |
 | **Sertifikat/Foto Prestasi** | PDF, JPG, PNG | 5 MB per file |
 | **Slide Materi (event)** | PDF, PPTX | 20 MB |
 | **Laporan/Booklet** | PDF | 50 MB |
@@ -782,11 +785,12 @@ Mekanisme:
 |---|---------|-------|------|
 | 1 | **Welcome email** | Saat akun beswan dibuat | Instant |
 | 2 | **Tugas baru** | Saat penugasan di-publish | Instant |
-| 3 | **Tugas dinilai** | Saat PCM submit nilai + feedback | Instant |
-| 4 | **Reminder refleksi** | Tanggal 25 setiap bulan, jika belum submit | Cron |
-| 5 | **Reminder prestasi** | Minggu terakhir kuartal (Mar/Jun/Sep/Des) | Cron |
-| 6 | **Event reminder** | H-1 sebelum event | Cron |
-| 7 | **Reminder IPK** | Awal semester (10 Jan & 10 Jul), jika belum update IPK periode berjalan | Cron |
+| 3 | **Reminder deadline tugas** | H-1 deadline, jika belum submit | Cron |
+| 4 | **Tugas dinilai** | Saat PCM submit nilai + feedback | Instant |
+| 5 | **Reminder refleksi** | Tanggal 25 setiap bulan, jika belum submit | Cron |
+| 6 | **Reminder prestasi** | Minggu terakhir kuartal (Mar/Jun/Sep/Des) | Cron |
+| 7 | **Event reminder** | H-1 sebelum event | Cron |
+| 8 | **Reminder IPK** | Awal semester (10 Jan & 10 Jul), jika belum update IPK periode berjalan | Cron |
 
 ### Notifikasi Tim Internal (Email)
 
@@ -813,6 +817,7 @@ Mekanisme:
 |-----|----------|------|
 | Refleksi reminder | `0 9 25 * *` (tgl 25, jam 9) | Cek beswan yang belum submit → kirim email |
 | Prestasi reminder | `0 9 25 3,6,9,12 *` (kuartal) | Cek beswan tanpa update kuartal → kirim email |
+| Tugas deadline reminder | `0 9 * * *` (setiap hari jam 9) | Cek penugasan H-1 deadline → kirim email + notif ke beswan yang belum submit |
 | Event reminder | `0 9 * * *` (setiap hari jam 9) | Cek event H-1 → kirim email ke beswan |
 | Monthly highlight | `0 9 1 * *` (tgl 1, jam 9) | Generate recap → kirim ke donatur aktif |
 | IPK reminder | `0 9 10 1,7 *` (tgl 10 Jan & Jul) | Cek beswan aktif yang belum update IPK periode berjalan → kirim email |

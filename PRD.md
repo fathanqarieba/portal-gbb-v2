@@ -184,16 +184,19 @@ Single login → diarahkan ke portal sesuai role
 - Library juga bisa diisi upload manual (materi luar event)
 
 #### Step 2.5 — Buat Penugasan
-- Pilih batch → pilih event sumber (opsional, bisa non-event)
-- Input: judul, deskripsi/soal, deadline
-- Muncul di Portal Beswan untuk semua beswan periode tersebut
-- Status awal per beswan: **belum_kumpul**
+- Pilih batch/periode → pilih event sumber (opsional, bisa non-event)
+- Input: judul, deskripsi/soal, **lampiran soal** (opsional, PDF/DOCX), **deadline** (tanggal + jam), **nilai maksimum** (default 100)
+- Kode tugas auto: `TGS-[periode]-NN`
+- **Publish** → muncul di Portal Beswan untuk **semua beswan periode tersebut** + kirim **notif in-app & email "tugas baru"**
+- Status awal tiap beswan: **belum_kumpul** (virtual — belum ada submission)
+- **Edit/hapus**: tugas bisa diedit (deskripsi/lampiran/deadline) setelah publish; hapus pakai konfirmasi (menghapus semua submission terkait)
 
-#### Step 2.6 — Penilaian Penugasan
-- Beswan submit → status **submitted**
-- PCM buka Hasil Penugasan → master-detail view
-- Input per beswan: nilai (angka) + feedback (teks)
-- Status → **graded**, notifikasi ke beswan
+#### Step 2.6 — Penilaian & Feedback
+- Beswan submit → status **submitted** (badge **Terlambat** jika lewat deadline)
+- PCM buka Penugasan → **master-detail**: klik tugas → daftar beswan + status
+- Per beswan: **download file** → input **nilai (0–nilai_maks)** + **feedback (teks)** → Simpan
+- Status → **graded** + kirim **notif in-app & email "tugas dinilai"** ke beswan
+- Filter **"belum dinilai"**; nilai/feedback **bisa direvisi** setelah graded (catat penilai & waktu terakhir)
 
 #### Step 2.7 — Rapor & Absensi
 - Generate rapor per beswan per periode:
@@ -387,11 +390,14 @@ Single login → diarahkan ke portal sesuai role
 - Setelah selesai: tombol slide & rekaman (disabled jika belum ada)
 - Absensi dicatat tim internal
 
-#### Step B4 — Upload Penugasan
-- List: judul, event sumber, deadline, status
-- Upload file jawaban (PDF/dokumen)
-- Submit → **submitted** (tidak bisa edit ulang)
-- Jika dinilai → tampil nilai & feedback
+#### Step B4 — Penugasan (lihat & submit)
+- List My Tasks: judul, event sumber, deadline, status (belum kumpul / terkumpul / dinilai)
+- **Detail tugas**: baca soal/deskripsi + **download lampiran soal** (jika ada)
+- Upload **1 file jawaban** (PDF/dokumen, ≤10MB) → **Submit**
+- Setelah submit → **submitted**, **tidak bisa edit ulang** (terkunci)
+- **Submit setelah deadline** masih diterima tapi ditandai **Terlambat**
+- **Reminder H-1 deadline** (in-app + email) jika belum submit
+- Jika sudah dinilai → tampil **nilai/nilai_maks + feedback** dari PCM
 
 #### Step B5 — Library Materi
 - Search & filter by topik/tag
@@ -480,7 +486,9 @@ Single login → diarahkan ke portal sesuai role
 | **Donatur kolom periode auto** | Kolom periode baru otomatis muncul saat periode baru dikonfigurasi |
 | **Kode donatur** | Auto-generated: `[Inisial][Semester][Tahun]` — collision: extend inisial nama terakhir 2 huruf |
 | **Absensi** | Dicatat tim internal, bukan beswan |
-| **Penugasan submit** | Tidak bisa edit setelah submit |
+| **Penugasan submit** | 1 file jawaban; **tidak bisa edit setelah submit**. Submit > deadline = tetap diterima, ditandai **Terlambat** |
+| **Penilaian penugasan** | Skala **0–nilai_maks** (default 100) + feedback teks. `graded` bisa **direvisi** (catat penilai & waktu terakhir). `belum_kumpul` = virtual (beswan periode tanpa submission) |
+| **Reminder penugasan** | Notif "tugas baru" saat publish + reminder **H-1 deadline** (in-app + email) ke beswan yang belum submit |
 | **Refleksi alert** | Wajib bulanan, terkoneksi periode batch |
 | **Prestasi alert** | Wajib update per kuartal |
 | **IPK update** | Beswan wajib update IP/IPK + transkrip tiap semester di Profile (1 entri per periode, tabel `beswan_ipk`). Alert + email reminder jika belum. Sumber "Avg IPK" internal & IPK di Portal Donatur |
@@ -626,7 +634,7 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 | 3 | Tombol + Buat Penugasan | "Klik untuk buat tugas baru." |
 | 4 | Pilih periode/batch | "Pilih batch. Tugas ini akan muncul di Portal Beswan untuk semua beswan di batch tersebut." |
 | 5 | Pilih event sumber | "Hubungkan ke event jika tugas ini berkaitan dengan event tertentu. Bisa juga dikosongkan untuk tugas mandiri." |
-| 6 | Form tugas | "Isi judul, deskripsi/soal, dan deadline. Kode tugas otomatis di-generate (misal TGS-BBB4-01)." |
+| 6 | Form tugas | "Isi judul, soal, lampiran soal (opsional), deadline (tanggal+jam), dan nilai maksimum. Kode tugas otomatis (misal TGS-BBB4-01). Publish → beswan dapat email." |
 | 7 | Selesai | "Tugas terpublish! Beswan akan menerima notifikasi dan bisa submit jawaban di Portal Beswan." |
 
 **Tour 8: Menilai Penugasan & Feedback** (trigger: pertama kali klik penugasan yang ada submisi)
@@ -634,7 +642,7 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 | Step | Target Element | Tooltip |
 |------|---------------|---------|
 | 1 | Detail panel | "Ini panel detail — daftar semua beswan untuk tugas ini beserta status mereka." |
-| 2 | Kolom Status | "Status per beswan: 'Belum kumpul' → 'Submitted' (sudah upload) → 'Graded' (sudah dinilai). 'Late' jika lewat deadline." |
+| 2 | Kolom Status | "Status per beswan: 'Belum kumpul' → 'Submitted' (sudah upload) → 'Graded' (sudah dinilai). Badge 'Terlambat' jika submit lewat deadline." |
 | 3 | Kolom File | "Klik ikon file untuk download/preview jawaban beswan." |
 | 4 | Kolom Nilai | "Masukkan nilai angka untuk setiap beswan yang sudah submit." |
 | 5 | Kolom Feedback | "Tulis feedback teks — ini akan tampil di Portal Beswan sebagai catatan dari tim program." |

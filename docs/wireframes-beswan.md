@@ -61,13 +61,14 @@
 │                                                                 │
 │  ═══ My Tasks ════════════════════════════════════════════════  │
 │                                                                 │
-│  ┌──────────────────────┬──────────┬────────┬─────────────────┐ │
-│  │ Judul                │ Deadline │ Status │ Aksi            │ │
-│  ├──────────────────────┼──────────┼────────┼─────────────────┤ │
-│  │ Refleksi CV          │ 20/09    │ ✅ 85  │ Lihat Feedback  │ │
-│  │ Essay Speaking       │ 30/09    │ ⏳     │ [Upload File]   │ │
-│  │ Portfolio            │ 15/10    │ ⏳     │ [Upload File]   │ │
-│  └──────────────────────┴──────────┴────────┴─────────────────┘ │
+│  ┌──────────────────┬─────────────┬───────────────┬──────────┐ │
+│  │ Judul            │ Deadline    │ Status        │ Aksi     │ │
+│  ├──────────────────┼─────────────┼───────────────┼──────────┤ │
+│  │ Refleksi CV      │ 20/09 17:00 │ ✅ 85/100     │ [Buka]   │ │
+│  │ Essay Speaking   │ 30/09 17:00 │ 📤 terkumpul  │ [Buka]   │ │
+│  │ Portfolio        │ 15/10 17:00 │ ⏳ belum (H-1)│ [Buka]   │ │
+│  └──────────────────┴─────────────┴───────────────┴──────────┘ │
+│  ⏳ belum · 📤 terkumpul · ⏰ terlambat · ✅ dinilai (nilai)    │
 │                                                                 │
 │  ═══ Prestasiku ══════════════════════════════════════════════  │
 │                                                                 │
@@ -78,6 +79,34 @@
 │  └──────────────────────┴──────────┴──────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 1a. Detail Tugas & Submit (Modal — dari My Tasks "Buka")
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ← Kembali     Essay Speaking · TGS-BBB4-02            [✕]     │
+│  Dari event: Public Speaking (EVT-02) · Deadline: 30/09 17:00  │
+│                                                                 │
+│  ── Soal ────────────────────────────────────────────────────  │
+│  Tulis essay 500 kata tentang pengalaman public speaking…       │
+│  Lampiran soal: 📎 brief-essay.pdf  [Download]                  │
+│                                                                 │
+│  ── Jawaban Saya ────────────────────────────────────────────  │
+│  ┌─────────────────────────────────┐                            │
+│  │ 📎 Upload file (PDF/DOCX, ≤10MB)│  essay-ahmad.pdf ✕         │
+│  └─────────────────────────────────┘                            │
+│  ⚠ Setelah submit tidak bisa diubah lagi.                       │
+│                                          [Submit Jawaban]       │
+│                                                                 │
+│  ── Setelah dinilai (read-only) ─────────────────────────────  │
+│  Nilai: 85/100   Status: ✅ Dinilai                             │
+│  Feedback PCM: "Struktur argumen bagus, tambah data…"           │
+└─────────────────────────────────────────────────────────────────┘
+```
+> Jika submit lewat deadline → tetap diterima, ditandai **⏰ Terlambat**.
+> Reminder **H-1 deadline** muncul di notifikasi Beranda + email.
 
 ---
 
