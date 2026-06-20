@@ -17,6 +17,7 @@ Spesifikasi & rencana implementasi **Portal Web Beasiswa Baik Berdampak (GBB)** 
 | [docs/wireframes-beswan.md](docs/wireframes-beswan.md) | Wireframe Portal Beswan (5 halaman) |
 | [docs/wireframes-donatur.md](docs/wireframes-donatur.md) | Wireframe Portal Donatur (6 halaman) |
 | [docs/colorpalette.md](docs/colorpalette.md) | Design system & token warna (light theme, selaras baikberdampak.org) |
+| [docs/email-templates.md](docs/email-templates.md) | Spesifikasi semua template email (base layout + 15 template, logo & brand) |
 | [docs/seeds/](docs/seeds/) | Data awal (seed) — mis. 17 pertanyaan refleksi bulanan |
 
 ## Cara Membaca

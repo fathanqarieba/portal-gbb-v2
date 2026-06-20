@@ -779,6 +779,8 @@ Mekanisme:
 
 **Tech**: Resend (3,000 emails/bulan gratis) + React Email (JSX templates)
 
+> **Desain & isi lengkap tiap template** (base layout, logo, subject, copy, variabel): `docs/email-templates.md`.
+
 ### Notifikasi Beswan (Email)
 
 | # | Trigger | Kapan | Tipe |
@@ -864,6 +866,7 @@ Semua item desain sudah final. Referensi:
 | **Wireframes Beswan** | `docs/wireframes-beswan.md` | ✅ 5 halaman |
 | **Wireframes Donatur** | `docs/wireframes-donatur.md` | ✅ 6 halaman |
 | **Color Palette & Design** | `docs/colorpalette.md` | ✅ Full design system |
+| **Email Templates** | `docs/email-templates.md` | ✅ 15 template + base layout |
 | **Font** | Plus Jakarta Sans | ✅ Single font family |
 
 ### Design Tokens Summary

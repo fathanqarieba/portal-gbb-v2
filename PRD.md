@@ -517,6 +517,7 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 | Wireframe Beswan (5 halaman) | `docs/wireframes-beswan.md` | ✅ |
 | Wireframe Donatur (6 halaman) | `docs/wireframes-donatur.md` | ✅ |
 | Color Palette & Design System | `docs/colorpalette.md` | ✅ |
+| Email Templates (15 template) | `docs/email-templates.md` | ✅ |
 | Font | Plus Jakarta Sans (single family) | ✅ |
 | Seed data refleksi | `docs/seeds/refleksi_pertanyaan.seed.json` | ✅ |
 
