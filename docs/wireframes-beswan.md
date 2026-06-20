@@ -97,7 +97,7 @@
 │  ┌─────────────────────────────────┐                            │
 │  │ 📎 Upload file (PDF/DOCX, ≤10MB)│  essay-ahmad.pdf ✕         │
 │  └─────────────────────────────────┘                            │
-│  ⚠ Setelah submit tidak bisa diubah lagi.                       │
+│  ✎ Bisa ganti file selama belum lewat deadline; lewat→terkunci. │
 │                                          [Submit Jawaban]       │
 │                                                                 │
 │  ── Setelah dinilai (read-only) ─────────────────────────────  │

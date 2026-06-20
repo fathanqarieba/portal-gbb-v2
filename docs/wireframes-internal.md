@@ -492,7 +492,7 @@
 │                                                                 │
 │  Judul:     [_______________________________]                   │
 │  Soal/Deskripsi: [textarea]                                     │
-│  Lampiran soal (opsional): [📎 Upload PDF/DOCX]                 │
+│  Lampiran soal (opsional): [📎 Upload PDF/DOCX/PPTX]            │
 │  Deadline:  [__/__/__]  [__:__]      Nilai maksimum: [100]      │
 │                                       [Batal] [Publish Tugas]   │
 │  ℹ Publish → muncul ke semua beswan periode + email "tugas baru"│

@@ -185,7 +185,7 @@ Single login → diarahkan ke portal sesuai role
 
 #### Step 2.5 — Buat Penugasan
 - Pilih batch/periode → pilih event sumber (opsional, bisa non-event)
-- Input: judul, deskripsi/soal, **lampiran soal** (opsional, PDF/DOCX), **deadline** (tanggal + jam), **nilai maksimum** (default 100)
+- Input: judul, deskripsi/soal, **lampiran soal** (opsional, PDF/DOCX/PPTX), **deadline** (tanggal + jam), **nilai maksimum** (default 100)
 - Kode tugas auto: `TGS-[periode]-NN`
 - **Publish** → muncul di Portal Beswan untuk **semua beswan periode tersebut** + kirim **notif in-app & email "tugas baru"**
 - Status awal tiap beswan: **belum_kumpul** (virtual — belum ada submission)
@@ -394,8 +394,8 @@ Single login → diarahkan ke portal sesuai role
 - List My Tasks: judul, event sumber, deadline, status (belum kumpul / terkumpul / dinilai)
 - **Detail tugas**: baca soal/deskripsi + **download lampiran soal** (jika ada)
 - Upload **1 file jawaban** (PDF/dokumen, ≤10MB) → **Submit**
-- Setelah submit → **submitted**, **tidak bisa edit ulang** (terkunci)
-- **Submit setelah deadline** masih diterima tapi ditandai **Terlambat**
+- Setelah submit → **submitted**; **masih bisa ganti/re-upload jawaban selama belum lewat deadline** (file baru menimpa yang lama)
+- **Lewat deadline → terkunci** (tidak bisa ganti). Beswan yang belum submit masih bisa submit sekali, ditandai **Terlambat**, lalu terkunci
 - **Reminder H-1 deadline** (in-app + email) jika belum submit
 - Jika sudah dinilai → tampil **nilai/nilai_maks + feedback** dari PCM
 
@@ -486,7 +486,7 @@ Single login → diarahkan ke portal sesuai role
 | **Donatur kolom periode auto** | Kolom periode baru otomatis muncul saat periode baru dikonfigurasi |
 | **Kode donatur** | Auto-generated: `[Inisial][Semester][Tahun]` — collision: extend inisial nama terakhir 2 huruf |
 | **Absensi** | Dicatat tim internal, bukan beswan |
-| **Penugasan submit** | 1 file jawaban; **tidak bisa edit setelah submit**. Submit > deadline = tetap diterima, ditandai **Terlambat** |
+| **Penugasan submit** | 1 file jawaban; bisa **diganti selama belum lewat deadline**, **lewat deadline terkunci**. Belum submit saat deadline lewat → masih bisa submit sekali, ditandai **Terlambat** |
 | **Penilaian penugasan** | Skala **0–nilai_maks** (default 100) + feedback teks. `graded` bisa **direvisi** (catat penilai & waktu terakhir). `belum_kumpul` = virtual (beswan periode tanpa submission) |
 | **Reminder penugasan** | Notif "tugas baru" saat publish + reminder **H-1 deadline** (in-app + email) ke beswan yang belum submit |
 | **Refleksi alert** | Wajib bulanan, terkoneksi periode batch |

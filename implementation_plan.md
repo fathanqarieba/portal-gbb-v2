@@ -184,8 +184,8 @@ flowchart TD
 | **Donatur kolom periode auto** | Kolom periode baru otomatis muncul di Database Donatur saat periode baru dikonfigurasi |
 | **Kode donatur** | Auto-generated: `[Inisial][Semester][Tahun]`. Detail di bawah |
 | **Absensi** | Dicatat oleh tim internal, bukan beswan |
-| **Penugasan — buat** | PCM input judul, soal, **lampiran soal** (opsional PDF/DOCX), deadline (tanggal+jam), `nilai_maks` (default 100). Publish → notif "tugas baru" + email ke semua beswan periode. Bisa diedit/dihapus setelah publish |
-| **Penugasan submit** | 1 file jawaban; **tidak bisa edit ulang** setelah submit. Submit > deadline = diterima + `terlambat=true`. `belum_kumpul` = virtual (left-join `beswan_periode` ⟕ `hasil_penugasan`) |
+| **Penugasan — buat** | PCM input judul, soal, **lampiran soal** (opsional PDF/DOCX/PPTX), deadline (tanggal+jam), `nilai_maks` (default 100). Publish → notif "tugas baru" + email ke semua beswan periode. Bisa diedit/dihapus setelah publish |
+| **Penugasan submit** | 1 file jawaban; bisa **re-upload selama < deadline** (timpa file & `submitted_at` lama), **terkunci setelah deadline**. Belum submit & deadline lewat → boleh submit sekali, `terlambat=true`. `belum_kumpul` = virtual (left-join `beswan_periode` ⟕ `hasil_penugasan`) |
 | **Penugasan nilai** | Skala **0–nilai_maks** + feedback teks → status `graded` + notif/email "tugas dinilai". Bisa **direvisi** (catat `graded_by`/`graded_at` terakhir). Endpoint `PATCH /hasil-penugasan/:id` |
 | **Refleksi alert** | Wajib bulanan, terkoneksi periode batch |
 | **Prestasi alert** | Wajib update per kuartal |
@@ -297,7 +297,7 @@ flowchart TD
 | **CV Beswan** | PDF | 5 MB |
 | **CV Mentor** | PDF | 5 MB |
 | **Foto Beswan** | JPG, PNG | 2 MB |
-| **Penugasan — lampiran soal** | PDF, DOCX | 10 MB |
+| **Penugasan — lampiran soal** | PDF, DOCX, PPTX | 10 MB |
 | **Penugasan (submit jawaban)** | PDF, DOCX, XLSX, PPTX | 10 MB |
 | **Sertifikat/Foto Prestasi** | PDF, JPG, PNG | 5 MB per file |
 | **Slide Materi (event)** | PDF, PPTX | 20 MB |

@@ -259,7 +259,7 @@ Table penugasan {
   periode_id varchar [ref: > periode.id]
   judul varchar
   deskripsi text [note: 'soal/instruksi tugas']
-  lampiran_url varchar [note: 'nullable — file soal/brief tugas (PDF/DOCX), opsional']
+  lampiran_url varchar [note: 'nullable — file soal/brief tugas (PDF/DOCX/PPTX), opsional']
   deadline timestamp [note: 'tanggal + jam batas kumpul']
   nilai_maks int [default: 100, note: 'skala nilai maksimum (default 100)']
   created_by varchar [ref: > users.id]
