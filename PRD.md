@@ -10,7 +10,7 @@ PRD ini mendefinisikan **apa & mengapa** (produk, flow, business rules). Detail 
 |---------|-----|
 | `PRD.md` (ini) | Produk, user flow, business rules, NFR, scalability, quality harness |
 | `implementation_plan.md` | Tech stack, arsitektur, fase build, struktur folder, cron, file limits, verifikasi |
-| `docs/erd.dbml` | Skema database (29 tabel, 10 group) — buka di [dbdiagram.io](https://dbdiagram.io) |
+| `docs/erd.dbml` | Skema database (31 tabel, 10 group) — buka di [dbdiagram.io](https://dbdiagram.io) |
 | `docs/wireframes-*.md` | Wireframe per portal (Internal/Beswan/Donatur) |
 | `docs/colorpalette.md` | Design system & token warna (light theme, selaras baikberdampak.org) |
 | `docs/seeds/` | Data awal (seed) — mis. 17 pertanyaan refleksi |
@@ -85,6 +85,7 @@ Portal web terpusat di `portal.baikberdampak.org` yang:
 | Settings — Users & role | ✏️ | — | — | — | — |
 | Settings — Template pesan WA | ✏️ | — | — | ✏️ | — |
 | Settings — Master kategori cashflow | ✏️ | — | ✏️ | — | — |
+| Settings — Konfigurasi AI | ✏️ | — | — | — | — |
 
 > **Default proposal — mohon dikoreksi bila perlu.** Prinsipnya: PCM pegang sisi program (beswan/kurikulum/event/penugasan), Finance pegang keuangan, AnC pegang donatur & mentor, Viewer read-only. RBAC ditegakkan di **server**, bukan sekadar disembunyikan di UI (lihat §12).
 
@@ -170,7 +171,7 @@ Single login → diarahkan ke portal sesuai role
 
 #### Step 2.4 — Materi Masuk Library
 - Slide/materi dari event otomatis masuk Library
-- AI summary + auto-tagging topik
+- AI summary + auto-tagging topik — **provider AI dikonfigurasi di Settings → Konfigurasi AI** (multi-provider via API key; lihat `implementation_plan.md`). Kalau API gagal/timeout, materi **tetap tersimpan tanpa summary** (tidak blocking) + bisa retry manual
 - Tim bisa edit tag manual
 - Library juga bisa diisi upload manual (materi luar event)
 
@@ -364,13 +365,13 @@ Single login → diarahkan ke portal sesuai role
 
 #### Step B1 — Login
 - Email + password dari tim GBB
-- Pertama kali → lengkapi profil (HP wajib, CV opsional)
+- Pertama kali → lengkapi profil (HP wajib, CV opsional, **IPK semester berjalan wajib** — lihat B9)
 
 #### Step B2 — Beranda
 - Greeting otomatis tiap hari (if-else 5 variasi, tanpa AI)
 - My Events (aktif & history)
 - My Tasks (pending & history)
-- Notifikasi: tugas baru, tugas dinilai, pengingat refleksi
+- Notifikasi: tugas baru, tugas dinilai, pengingat refleksi, **pengingat update IPK semester**
 
 #### Step B3 — Ikut Event
 - Event berdasarkan periode aktif
@@ -399,7 +400,7 @@ Single login → diarahkan ke portal sesuai role
 - Alert jika bulan ini belum diisi
 - Form: 17 pertanyaan default dari PCM & AnC (Identitas, Aktivitas Bulanan, Refleksi & Evaluasi, Rencana & Masukan, Dokumentasi) — seed, editable admin. Detail di `implementation_plan.md` → Refleksi Bulanan Beswan — Form
 - Termasuk pertanyaan bersyarat (mis. nama lomba muncul jika ikut lomba) & skala kepuasan 1–10
-- Upload dokumentasi/transkrip (wajib)
+- Upload **dokumentasi kegiatan bulan ini** (wajib — 1 field multi-file, foto/PDF). Transkrip nilai **tidak lagi di sini** → pindah ke update IPK (B9)
 - Dropdown bulan untuk lihat/edit sebelumnya
 
 #### Step B8 — Input Prestasi
@@ -408,16 +409,26 @@ Single login → diarahkan ke portal sesuai role
 - Alert tiap akhir kuartal jika belum update
 - Data tampil di Portal Donatur
 
+#### Step B9 — Update IPK (per semester, wajib)
+- Di halaman **Profile**: input **IP semester berjalan** + **IPK kumulatif** + upload **transkrip** (bukti)
+- **Wajib diperbarui tiap semester** (1 entri per periode aktif). Alert di Beranda + email reminder jika belum update di semester berjalan
+- IPK terbaru jadi sumber metric **"Avg IPK"** (Database Beswan internal) & angka IPK di Portal Donatur — menggantikan data yang sebelumnya tak punya sumber
+- Tabel: `beswan_ipk` (1 baris per beswan × periode)
+
 ---
 
 ## 7. FLOW PORTAL — Actor 3: Donatur
 
 #### Step D1 — Login
 - Gmail OAuth
+- Jika email Gmail **tidak cocok** dengan email di database donatur (dari Google Sheets / form bit.ly/AlumniMauBantu), login sukses tapi **akun belum terhubung** — donatur tidak melihat data. Muncul pesan: "Akun belum terhubung. Hubungi Tim AnC."
+- **Fallback admin-link**: Admin AnC bisa **menghubungkan akun Gmail secara manual** di Database Donatur (field `user_id` di tabel `donatur` di-set ke user yang login). Ini menangani kasus email berbeda tanpa harus ubah data di Google Sheets
 
 #### Step D2 — Beranda
 - Greeting otomatis tiap hari
+- **Info banner** (dismissible, tampil saat pertama login): "Pastikan email Gmail yang kamu pakai login sama dengan email saat mengisi form bit.ly/AlumniMauBantu. Jika berbeda, hubungi Tim AnC agar akun dihubungkan."
 - Total donasi, history konsistensi per bulan/batch, batch yang diikuti
+- **Akses data beswan = sesuai periode yang di-assign oleh AnC** melalui `donatur_periode`. Donatur hanya melihat beswan dari periode di mana ia aktif
 
 #### Step D3 — Dashboard GBB
 - Financial:
@@ -457,7 +468,11 @@ Single login → diarahkan ke portal sesuai role
 | **Penugasan submit** | Tidak bisa edit setelah submit |
 | **Refleksi alert** | Wajib bulanan, terkoneksi periode batch |
 | **Prestasi alert** | Wajib update per kuartal |
-| **Donatur visibility** | Hanya lihat beswan dari periode di mana ia aktif |
+| **IPK update** | Beswan wajib update IP/IPK + transkrip tiap semester di Profile (1 entri per periode, tabel `beswan_ipk`). Alert + email reminder jika belum. Sumber "Avg IPK" internal & IPK di Portal Donatur |
+| **Donatur visibility** | Hanya lihat beswan dari periode di mana ia aktif (scope via `donatur_periode`) |
+| **Donatur klasifikasi** | AnC wajib meng-assign donatur ke periode (`donatur_periode`). Donatur tanpa periode = belum diklasifikasi → **alert di Monitoring & Database Donatur** agar segera di-assign |
+| **Donatur update musiman** | Tiap awal semester (Juli-Agustus, Desember-Januari), AnC harus **update manual** keikutsertaan donatur: siapa yang lanjut, siapa berhenti, siapa baru. Reminder otomatis tampil di dashboard |
+| **Donatur email mismatch** | Jika Gmail login ≠ email di DB, akun belum terhubung. Admin AnC bisa **hubungkan manual** (set `donatur.user_id` → user). Banner info di Beranda Donatur |
 | **Mentor privacy** | Portal Beswan: tanpa HP & CV |
 | **BSI parsing** | Header baris 12, data baris 13+; CR/DB → tipe in/out (dikunci); **dedup FT Number + Nominal** (antar-upload) |
 | **Cashflow jenis & klasifikasi** | Cash in = Donasi/Pengembalian/Bagi Hasil (hanya Donasi butuh donatur); kategori auto dari kolom Category file (master `cashflow_kategori`, editable); status `inputted`/`unknown` (wajib 100% inputted sebelum simpan) |
@@ -473,8 +488,8 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 
 | Artefak | Lokasi | Status |
 |---------|--------|--------|
-| ERD (29 tabel, 10 group) | `docs/erd.dbml` | ✅ |
-| Wireframe Internal (11 halaman) | `docs/wireframes-internal.md` | ✅ |
+| ERD (31 tabel, 10 group) | `docs/erd.dbml` | ✅ |
+| Wireframe Internal (12 halaman) | `docs/wireframes-internal.md` | ✅ |
 | Wireframe Beswan (5 halaman) | `docs/wireframes-beswan.md` | ✅ |
 | Wireframe Donatur (6 halaman) | `docs/wireframes-donatur.md` | ✅ |
 | Color Palette & Design System | `docs/colorpalette.md` | ✅ |
@@ -681,8 +696,8 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 | 4 | My Tasks | "Tugas dari tim GBB muncul di sini. Klik untuk lihat detail dan upload jawaban." |
 | 5 | Menu Library | "Cari materi pembinaan di sini. Kamu juga bisa usulkan topik materi baru." |
 | 6 | Menu Mentor | "Lihat daftar mentor. Butuh bimbingan? Request sesi 1-on-1 di sini." |
-| 7 | Menu Refleksi | "Setiap bulan, kamu wajib mengisi refleksi dan upload transkrip. Jangan sampai terlewat!" |
-| 8 | Menu Profile | "Lengkapi profilmu di sini — pastikan HP dan data lainnya sudah benar." |
+| 7 | Menu Refleksi | "Setiap bulan, kamu wajib mengisi refleksi dan upload dokumentasi kegiatan. Jangan sampai terlewat!" |
+| 8 | Menu Profile | "Lengkapi profilmu di sini — HP, CV, dan **IPK semester berjalan** (wajib diperbarui tiap semester, lengkap dengan transkrip)." |
 | 9 | Prestasi | "Catat prestasi kamu di sini — upload sertifikat atau foto. Wajib update tiap kuartal." |
 | 10 | Selesai | "Itu dia! Kalau bingung, kamu bisa ulangi tutorial ini kapan saja. Semangat!" |
 
@@ -693,6 +708,7 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 | Step | Target Element | Tooltip |
 |------|---------------|---------|
 | 1 | Greeting | "Terima kasih sudah bergabung sebagai donatur GBB! Portal ini tempat kamu memantau dampak kontribusimu." |
+| 1b | Info banner | "Pastikan email Gmail kamu sama dengan yang dipakai saat mengisi form bit.ly/AlumniMauBantu. Jika berbeda, hubungi Tim AnC agar akunmu dihubungkan." |
 | 2 | Metric cards | "Ringkasan donasi kamu: total yang sudah diberikan, konsistensi per bulan, dan batch yang kamu ikuti." |
 | 3 | History konsistensi | "Tabel ini menunjukkan konsistensi donasimu per bulan di setiap batch. Centang hijau = sudah tercatat." |
 | 4 | Menu Dashboard | "Lihat ringkasan keuangan GBB, progress beswan, dan event yang sudah berjalan." |
@@ -740,6 +756,7 @@ Acuan kualitas lintas-fitur. Setiap fase harus memenuhi NFR yang relevan sebelum
 | | Isolasi portal | Internal/Beswan/Donatur terisolasi — Donatur hanya lihat beswan periode di mana ia aktif |
 | | File upload | Validasi tipe & ukuran (lihat limit di `implementation_plan.md`); scan ekstensi; URL MinIO tidak public-guessable |
 | | Input | Validasi server-side (Zod) untuk semua form; proteksi SQL injection (Drizzle parameterized) & XSS |
+| | Secret / API key | API key AI & Google Service Account disimpan **terenkripsi at-rest**, hanya didekripsi di server, **tidak pernah** dikirim ke client / masuk log |
 | **Reliability** | Cron job (reminder, sync) | Idempotent + log hasil; gagal tidak boleh kirim email dobel |
 | | PWA offline | Upload penugasan & refleksi masuk queue, auto-retry saat online (lihat `implementation_plan.md`) |
 | | Backup | Backup DB harian + sebelum tiap migration; file MinIO di-backup |
@@ -778,6 +795,8 @@ Skala MVP kecil, tapi skema & arsitektur dirancang agar **tumbuh tanpa rewrite**
 | **Caching / PWA** | Data read-only (event, library, dashboard) di-cache di klien; mutasi via queue saat offline |
 | **Google Sheets sync** | Mirror read-only tiap 15 menit (bukan source of truth untuk operasional portal) |
 | **Template (refleksi & pesan WA)** | Disimpan sebagai data (`refleksi_pertanyaan`, `pesan_template`), bukan hardcode — admin ubah tanpa deploy |
+| **Provider AI** | Lewat adapter (`anthropic` + `openai_compatible`) & tabel `ai_config` — ganti/tambah provider via Settings (API key), tanpa ubah kode. Konsumen pertama: auto-summary Library |
+| **IPK per semester** | `beswan_ipk` di-scope per `periode_id` (1 baris/semester) — riwayat IPK tumbuh sebagai data, mendukung tren & multi-batch tanpa ubah skema |
 
 ### Future (kalau memungkinkan, di luar MVP)
 - **WhatsApp langsung**: AnC login WA sekali di portal → kirim pesan ter-template langsung (WA Web session / WA Business API), menggantikan `wa.me` link manual. Skema `pesan_template` sudah siap menampung ini.

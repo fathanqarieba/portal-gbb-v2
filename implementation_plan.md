@@ -1,6 +1,6 @@
 # Implementation Plan — Portal Web GBB (v3 Final)
 
-> **Version**: 3.0 | **Date**: 17 Mei 2026 | **Status**: 🟡 Menunggu Approval
+> **Version**: 3.1 | **Date**: 20 Jun 2026 | **Status**: 🟢 Approved
 
 ---
 
@@ -24,9 +24,9 @@ Membangun Portal Web GBB di `portal.baikberdampak.org` dengan 3 sub-portal (Inte
 | **Cashflow** | Upload bank statement BSI (.xlsx) + klasifikasi manual |
 
 | **Role Viewer** | Viewer = akses read-only dashboard internal, tanpa edit. Role "media" dihapus |
-| **Donatur Auth** | Gmail OAuth only, tanpa password_hash. Email di DB = patokan mapping kode donatur |
+| **Donatur Auth** | Gmail OAuth only, tanpa password_hash. Email di DB = patokan auto-match (`donatur.user_id`). Jika email ≠ → admin AnC link manual. Banner info di Beranda Donatur |
 | **Event periode_id** | Event punya `periode_id` langsung. Kurikulum = auto-set dari topik, non-kurikulum = manual set |
-| **AI Summary** | Masuk scope MVP — library auto-summary + auto-tag |
+| **AI Summary** | Masuk scope MVP — library auto-summary + auto-tag. **Provider configurable** di Settings → Konfigurasi AI (multi-provider via API key; default Claude) — lihat [AI Provider Configuration](#ai-provider-configuration) |
 | **IG Highlights** | Embed dari IG @baikberdampak di Beranda Donatur |
 
 ✅ Tidak ada open question tersisa.
@@ -54,6 +54,7 @@ Membangun Portal Web GBB di `portal.baikberdampak.org` dengan 3 sub-portal (Inte
 │  xlsx (BSI bank statement parsing)   │
 │  Resend (email service, free tier)   │
 │  React Email (email templates)       │
+│  AI SDK (Anthropic + OpenAI-compat)  │
 ├──────────────────────────────────────┤
 │         INFRASTRUCTURE               │
 │  PostgreSQL 16                       │
@@ -80,6 +81,7 @@ Membangun Portal Web GBB di `portal.baikberdampak.org` dengan 3 sub-portal (Inte
 | **Excel Parser** | xlsx / ExcelJS | BSI bank statement parsing |
 | **Email Service** | Resend | 3,000 emails/bulan gratis, API simple |
 | **Email Templates** | React Email | JSX email templates, konsisten dengan UI |
+| **AI (summary/tag)** | Anthropic SDK + OpenAI SDK (compat) | Multi-provider via `ai_config` — adapter native Claude + OpenAI-compatible (OpenAI/Gemini/OpenRouter/dll). Lihat [AI Provider Configuration](#ai-provider-configuration) |
 | **PWA** | vite-plugin-pwa | Service worker, manifest, Workbox caching — auto-generate |
 | **Offline DB** | idb | IndexedDB wrapper untuk offline data cache & upload queue |
 | **Guided Tour** | React Joyride | Tutorial onboarding interaktif — tooltip + spotlight per role |
@@ -138,7 +140,7 @@ flowchart TD
     E4["B4 Upload Penugasan\n(submit file, lihat nilai)"]
     E5["B5 Library Materi\n(search, filter, usul topik)"]
     E6["B6 Database Mentor\n(limited info, request 1-on-1)"]
-    E7["B7 Refleksi Bulanan\n(form + upload transkrip)"]
+    E7["B7 Refleksi Bulanan\n(form + dokumentasi)"]
     E8["B8 Input Prestasi\n(upload sertifikat/foto)"]
 
     E1 --> E2
@@ -185,10 +187,12 @@ flowchart TD
 | **Penugasan submit** | Setelah submit, tidak bisa edit ulang |
 | **Refleksi alert** | Wajib bulanan, terkoneksi periode batch |
 | **Prestasi alert** | Wajib update per kuartal |
+| **IPK update** | Beswan wajib update IP/IPK + transkrip tiap semester di Profile (1 entri per `periode_id`, tabel `beswan_ipk`). Alert di Beranda + email reminder. Sumber "Avg IPK" internal & IPK di Portal Donatur |
 | **Donatur visibility** | Hanya lihat beswan dari periode di mana ia aktif |
 | **Mentor privacy** | Portal Beswan: tanpa HP & CV |
 | **Login beswan** | Email + password (generated) |
-| **Login donatur** | Gmail OAuth (email di DB = patokan mapping kode donatur) |
+| **Login donatur** | Gmail OAuth. Auto-match `donatur.email` → set `donatur.user_id`. Jika email tidak cocok: login sukses tapi akun belum terhubung. **Admin-link fallback**: AnC bisa manual set `donatur.user_id` di Database Donatur (dropdown user yang belum ter-link). Banner info di Beranda Donatur saat pertama login |
+| **Donatur klasifikasi** | AnC assign donatur ke periode via `donatur_periode`. Donatur tanpa periode = alert di Monitoring & Database Donatur. Tiap awal semester (Jul-Agt, Des-Jan) reminder otomatis muncul agar AnC update keikutsertaan |
 | **Parsing engine** | MVP: BSI. Metadata baris 1–10, **header baris 12, data baris 13+**; kolom A–I: `Date·FT Number·Description·Currency·Amount·DB·CR·Balance·Category`. **Abaikan blok ringkasan di kolom K+ ("SUMMARY…")**. CR terisi → `cash_in`, DB terisi → `cash_out` (**tipe dikunci dari file**). Bulan dari tanggal transaksi. Arsitektur **extensible per-bank** (profil pemetaan kolom), plus **error handling**: tolak file kalau format tak dikenali / sheet kosong |
 | **Dedup cashflow** | Antar-upload (bukan dalam 1 file): kombinasi **FT Number + Nominal**. Baris yang sudah ada **tetap ditampilkan & dihitung di kartu DUPLIKAT tapi tidak disimpan**. Tanpa override manual. Baris yang FT Number-nya bukan format FT (mis. Biaya Adm `7280955285.11.202509`) → fallback dedup (tanggal + nominal + deskripsi) |
 | **Auto-klasifikasi kategori** | Map kolom `Category` file (Donasi/Bagi Hasil/Biaya Adm Perbankan/Program/Biaya Transaksi/Pajak/dll) → `kategori_id`/`sub_kategori_id` di master `cashflow_kategori` (editable). Berlaku **semua baris** (in & out). Tetap bisa dikoreksi manual |
@@ -228,7 +232,7 @@ flowchart TD
 |------|--------|--------|
 | Nama 1 kata | Hanya 1 huruf inisial | Royhana → `R12025` |
 | Nama panjang | Tetap ambil inisial semua kata | Muhammad Alfawza Biljannah → `MAB` |
-| **Collision** | Extend inisial nama terakhir jadi 2 huruf | Yusuf Sufyan → `YSU22024`, Yusuf Santoso → `YSA22024` |
+| **Collision** | Extend inisial nama terakhir jadi 2 huruf; jika **masih** bentrok (prefix sama) → tambah sufiks angka (`-2`, `-3`, …) | Yusuf Sufyan → `YSU22024`, Yusuf Santoso → `YSA22024`; bentrok lagi → `YSU22024-2` |
 
 ### Kode Event — Auto-Generation Rules
 
@@ -263,9 +267,21 @@ flowchart TD
 | Flow | Detail |
 |------|--------|
 | **Generate** | Saat akun dibuat, sistem generate password acak 8 karakter (huruf + angka). Dikirim via welcome email |
-| **First Login** | Beswan login → wajib lengkapi profil (HP wajib, CV opsional). Direkomendasikan ganti password |
+| **First Login** | Beswan login → wajib lengkapi profil (HP wajib, CV opsional, **IPK semester berjalan wajib**). Direkomendasikan ganti password |
 | **Change Password** | Di halaman Profile → form old password + new password + confirm. Min 8 karakter |
 | **Forgot Password** | Di halaman login → input email → kirim reset link via Resend (expired 1 jam) → set new password |
+
+---
+
+## Update IPK Beswan — per Semester
+
+| Item | Detail |
+|------|--------|
+| **Di mana** | Halaman Profile beswan |
+| **Apa** | IP semester berjalan + IPK kumulatif + upload transkrip (bukti) |
+| **Kapan** | Wajib tiap semester — 1 entri per `periode_id` (tabel `beswan_ipk`, unique `beswan_id + periode_id`) |
+| **Reminder** | Alert banner di Beranda + email cron jika belum update di periode aktif |
+| **Dipakai** | Metric "Avg IPK" (Database Beswan internal) & angka IPK per beswan di Portal Donatur (ambil baris periode terbaru) |
 
 ---
 
@@ -281,10 +297,17 @@ flowchart TD
 | **Slide Materi (event)** | PDF, PPTX | 20 MB |
 | **Laporan/Booklet** | PDF | 50 MB |
 | **Bank Statement BSI** | XLSX | 10 MB |
-| **Transkrip Refleksi** | PDF | 5 MB |
+| **Dokumentasi Refleksi** (multi-file) | PDF, JPG, PNG | 5 MB per file |
+| **Transkrip Nilai (IPK)** | PDF, JPG, PNG | 5 MB |
 | **TOR Kurikulum** | PDF, DOCX | 10 MB |
 
-**Storage**: MinIO buckets terpisah per tipe (`beswan-files`, `event-materials`, `assignments`, `reports`, `bank-statements`).
+**Storage**: MinIO buckets terpisah per tipe:
+- `beswan-files` — foto & CV beswan, **transkrip IPK**, **dokumentasi refleksi**, sertifikat/foto prestasi
+- `mentor-files` — CV mentor
+- `event-materials` — slide materi + **TOR kurikulum**
+- `assignments` — file submit penugasan
+- `reports` — laporan & booklet
+- `bank-statements` — mutasi BSI
 
 ---
 
@@ -346,8 +369,8 @@ flowchart TD
   "short_name": "Portal GBB",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#adc7ff",
-  "background_color": "#101415",
+  "theme_color": "#f56a1f",
+  "background_color": "#ffffff",
   "icons": [
     { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png" }
@@ -367,6 +390,28 @@ flowchart TD
 | **Tampilan** | 3 post terbaru, horizontal scroll cards |
 | **Fallback** | Jika API gagal / rate limit → tampilkan link ke profil IG |
 | **Update** | Tim internal input URL post IG di Settings / Konfigurasi (manual, bukan auto-fetch) |
+
+---
+
+## AI Provider Configuration
+
+Fitur AI (sekarang: auto-summary + auto-tag Library) memanggil provider yang dipilih admin di **Settings → Konfigurasi AI**. Konfigurasi disimpan di tabel `ai_config`.
+
+### Arsitektur adapter
+- Interface `AiProvider { summarize(text), tag(text) }` dengan 2 implementasi:
+  - **`anthropic`** — Anthropic SDK native (default; model Claude terbaru)
+  - **`openai_compatible`** — OpenAI SDK dengan `base_url` + `model` + `apiKey` custom → satu adapter ini menjangkau **OpenAI, Google Gemini (endpoint OpenAI-compat), OpenRouter (ratusan model), DeepSeek, Groq, LM Studio/Ollama lokal**, dll
+- Tambah provider baru = tambah/atur baris `ai_config`, **tanpa ubah kode** (selama OpenAI-compatible)
+
+### Settings UI (admin only)
+- Pilih provider, isi `label`, `model`, `base_url` (opsional untuk compat), `api_key`
+- Tombol **Test koneksi** sebelum simpan
+- Tandai 1 baris **aktif** — itu yang dipakai fitur AI
+
+### Keamanan & keandalan
+- `api_key` **dienkripsi at-rest** (mis. AES dengan app secret), didekripsi **hanya di server**, tidak pernah ke client / log (NFR §12)
+- **Fallback**: jika API gagal/timeout, materi tetap tersimpan **tanpa** summary/tag (non-blocking), ditandai "AI pending", bisa retry manual
+- **Hemat biaya**: summary dibuat **sekali saat upload**, hasil disimpan di `library.ai_summary` (tidak panggil ulang tiap view)
 
 ---
 
@@ -442,7 +487,7 @@ Form refleksi yang wajib diisi beswan setiap bulan (Step B7 / Phase 2E). 17 pert
 
 ### Struktur penyimpanan
 - **`refleksi_pertanyaan`** — template pertanyaan (konfigurabel admin): `id`, `urutan`, `seksi`, `label`, `field_type`, `wajib`, `opsi` (JSON, untuk dropdown/single_choice/linear_scale), `kondisi` (JSON, untuk pertanyaan bersyarat), `aktif`. Di-seed dengan 17 baris di bawah.
-- **`refleksi`** — submission per beswan × bulan × periode: `id`, `beswan_id`, `periode_id`, `bulan`, `tahun`, `status` (draft/submitted), `submitted_at`, `transkrip_url`.
+- **`refleksi`** — submission per beswan × bulan × periode: `id`, `beswan_id`, `periode_id`, `bulan`, `tahun`, `status` (draft/submitted), `submitted_at`. Dokumentasi multi-file disimpan sebagai jawaban pertanyaan `dokumentasi` di `refleksi_jawaban` (JSON array URL); transkrip nilai pindah ke `beswan_ipk`.
 - **`refleksi_jawaban`** — jawaban per pertanyaan: `id`, `refleksi_id`, `pertanyaan_id`, `nilai` (text/JSON).
 
 > Karena pertanyaan editable, jawaban di-link via `pertanyaan_id` (bukan kolom fixed) agar perubahan template tidak merusak data historis. Rapor membaca status sudah/belum submit per bulan; isi jawaban tampil di detail beswan (tim internal) & ringkasan di Portal Donatur.
@@ -470,7 +515,7 @@ Form refleksi yang wajib diisi beswan setiap bulan (Step B7 / Phase 2E). 17 pert
 | 14 | Refleksi & Evaluasi | Kendala apa yang kamu hadapi selama bulan ini? | long_text | ⬜ | — |
 | 15 | Refleksi & Evaluasi | Target atau rencana yang ingin dicapai bulan depan? | long_text | ✅ | — |
 | 16 | Rencana & Masukan | Masukan atau saran untuk program Beswan. | long_text | ⬜ | — |
-| 17 | Dokumentasi | Upload dokumentasi kegiatan/lomba bulan ini. | file_upload | ✅ | = transkrip/dokumentasi wajib (lihat batas ukuran di File Upload) |
+| 17 | Dokumentasi | Upload dokumentasi kegiatan/lomba bulan ini. | file_upload | ✅ | dokumentasi kegiatan wajib, multi-file foto/PDF (lihat File Upload Limits). Transkrip nilai → Profile/IPK |
 
 **Catatan:**
 - Penomoran asli melompati nomor 9 → sudah dirapikan jadi 1–17 berurutan.
@@ -497,7 +542,7 @@ Form refleksi yang wajib diisi beswan setiap bulan (Step B7 / Phase 2E). 17 pert
 3. **Transform**: Script Node.js untuk:
    - Normalisasi format (tanggal, nominal, nama)
    - Generate kode donatur
-   - Validasi unique constraints (email, NIM, FT Number)
+   - Validasi unique constraints (email, NIM); dedup cashflow = **FT Number + Nominal** (bukan FT Number saja)
    - Map relasi (donatur → periode, event → topik)
 4. **Load**: Insert ke PostgreSQL via Drizzle
 5. **Verify**: Cross-check jumlah row, spot-check 10% data secara manual
@@ -529,13 +574,14 @@ GBB/
 │   │   ├── internal/               # Portal Internal (isolated)
 │   │   │   ├── layout.tsx
 │   │   │   └── pages/              # 1 folder per halaman
-│   │   │       ├── dashboard/      # index + EventTab + GrowthTab + BeswanTab
+│   │   │       ├── dashboard/      # index + EventTab + TrendDonaturTab + GrowthTab
 │   │   │       ├── beswan/         # index + Table + Detail + Rapor
 │   │   │       ├── kurikulum/
 │   │   │       ├── mentor/
 │   │   │       ├── event/
 │   │   │       ├── penugasan/
-│   │   │       └── keuangan/       # rekonsiliasi/ + database-donatur/ + monitoring/
+│   │   │       ├── keuangan/       # rekonsiliasi/ + overview/ + database-donatur/ + monitoring/
+│   │   │       └── settings/       # users/ + template-wa/ + master-kategori/ + konfigurasi-ai/
 │   │   ├── beswan/                 # Portal Beswan (isolated)
 │   │   │   ├── layout.tsx
 │   │   │   └── pages/              # beranda/ library/ mentor/ refleksi/ profile/
@@ -552,13 +598,14 @@ GBB/
 │   ├── db/
 │   │   ├── schema/                 # 1 file per domain
 │   │   │   ├── core.ts             # periode, users
-│   │   │   ├── beswan.ts           # beswan, beswan_periode, refleksi, prestasi
-│   │   │   ├── donatur.ts          # donatur, donatur_periode
-│   │   │   ├── event.ts            # topik, event, event_mentor, event_beswan, feedback
+│   │   │   ├── beswan.ts           # beswan, beswan_periode, beswan_ipk, refleksi_pertanyaan, refleksi, refleksi_jawaban, prestasi, prestasi_file
+│   │   │   ├── donatur.ts          # donatur, donatur_tag, donatur_periode
+│   │   │   ├── mentor.ts           # mentor, mentor_request
+│   │   │   ├── event.ts            # topik, event, event_mentor, event_beswan, feedback_event
 │   │   │   ├── penugasan.ts        # penugasan, hasil_penugasan
-│   │   │   ├── cashflow.ts          # cashflow, cashflow_kategori
+│   │   │   ├── cashflow.ts         # cashflow, cashflow_kategori
 │   │   │   ├── library.ts          # library, topik_usulan
-│   │   │   ├── sistem.ts           # laporan, notifikasi, mentor_request
+│   │   │   ├── sistem.ts           # laporan, notifikasi, pesan_template, pendaftar_event, ai_config
 │   │   │   └── index.ts            # barrel export
 │   │   └── migrations/
 │   ├── routes/                     # 1 file per entity
@@ -592,11 +639,12 @@ GBB/
 - Design system: theme, color palette, typography
 - Reusable UI components (Button, Input, Table, Card, Modal, Sidebar, MetricCard, Badge, Alert)
 - Express boilerplate + Drizzle config
+- **Desain model RBAC sejak awal**: peran (`users.role`) + matriks akses + helper guard server-side didefinisikan di Phase 0 (provider Better Auth diwire di Phase 4B). RBAC = risiko #1 (PRD §14), jangan ditempel di akhir
 
 ### Phase 0B: PWA Foundation (paralel Phase 0)
 - `vite-plugin-pwa` setup (auto-generate SW + manifest)
 - Service Worker: Network-first `/api/*`, Cache-first static assets
-- `public/manifest.json`: name, icons, theme_color `#adc7ff`, background_color `#101415`, display `standalone`
+- `public/manifest.json`: name, icons, theme_color `#f56a1f`, background_color `#ffffff`, display `standalone`
 - PWA icons: 16x16, 32x32, 192x192, 512x512, apple-touch-icon
 - Self-host Plus Jakarta Sans di `public/fonts/` (offline font loading)
 - HTML meta tags: theme-color, mobile-web-app-capable, manifest link
@@ -615,6 +663,7 @@ GBB/
 - **1I** Monitoring Donatur & Laporan
 - **1J** PWA: offline snapshot caching untuk dashboard
 - **1K** Tutorial onboarding Internal (Tour 1: Pengenalan + Tour 2-4: kontekstual)
+- **1L** Settings (Users & role, Template pesan WA, Konfigurasi AI)
 
 ### Phase 2: Front-End Portal Beswan ✋
 - **2A** Layout & navigation
@@ -622,7 +671,7 @@ GBB/
 - **2C** Library Materi (reuse + usul topik)
 - **2D** Mentor (limited view, request 1-on-1)
 - **2E** Refleksi Bulanan (form + prestasi)
-- **2F** Profile (edit data, upload CV)
+- **2F** Profile (edit data, upload CV, **update IPK + transkrip per semester**)
 - **2G** PWA: offline upload queue untuk penugasan & refleksi
 - **2H** Tutorial onboarding Beswan (10 langkah)
 
@@ -675,12 +724,14 @@ GBB/
 Mekanisme:
 - Google Sheets API v4 + Service Account (read-only, gratis)
 - node-cron di Express → fetch → upsert ke PostgreSQL
-- Deduplication by timestamp + nama/index
+- Upsert by natural key per sheet: donatur = email; pendaftar_event = email + timestamp; feedback = event + responden (atau row id Sheet) — bukan sekadar timestamp
 
 > [!IMPORTANT]
 > **Database Donatur — pemisahan data:**
 > - **Dari Google Sheets**: profil donatur (nama, email, HP, organisasi, nominal, skema, dll — sampai kolom Akun Media Sosial)
 > - **Dari Portal (managed by AnC)**: kode donatur (auto-generated), status per-periode (centang aktif/tidak per batch), donatur_periode records
+> - **Sync hanya update kolom profil** (key: email). Kolom yang dikelola portal (`kode`, `is_checked`, `catatan`, `donatur_periode`) **tidak pernah** ditimpa sync
+> - Donatur yang **hilang dari Sheet TIDAK dihapus** dari portal (no hard-delete) — riwayat kode/periode/catatan aman; nonaktifkan manual bila perlu
 > - Kolom periode baru **otomatis muncul** di tabel Database Donatur saat admin membuat periode baru di Konfigurasi Periode
 
 ---
@@ -720,6 +771,10 @@ Mekanisme:
 | Prestasi reminder | `0 9 25 3,6,9,12 *` (kuartal) | Cek beswan tanpa update kuartal → kirim email |
 | Event reminder | `0 9 * * *` (setiap hari jam 9) | Cek event H-1 → kirim email ke beswan |
 | Monthly highlight | `0 9 1 * *` (tgl 1, jam 9) | Generate recap → kirim ke donatur aktif |
+| IPK reminder | `0 9 10 1,7 *` (tgl 10 Jan & Jul) | Cek beswan aktif yang belum update IPK periode berjalan → kirim email |
+| Donatur klasifikasi reminder | `0 9 1 7,8,12,1 *` (tgl 1, Jul-Agt & Des-Jan) | Tampilkan banner reminder di Monitoring & Database Donatur: "Saatnya update keikutsertaan donatur periode baru". Cek donatur tanpa `donatur_periode` aktif → notifikasi ke admin AnC |
+
+> **Idempotensi**: tiap job menulis penanda "sudah terkirim" (mis. baris `notifikasi` / log kirim ber-key `tipe + recipient_id + periode/bulan`) dan mengeceknya sebelum kirim — supaya restart PM2 / job dobel **tidak** mengirim email ganda (NFR Reliability §12).
 
 ---
 
@@ -755,8 +810,8 @@ Semua item desain sudah final. Referensi:
 
 | Item | File | Status |
 |------|------|--------|
-| **ERD** | `docs/erd.dbml` | ✅ 28 tabel, 10 groups |
-| **Wireframes Internal** | `docs/wireframes-internal.md` | ✅ 10 halaman |
+| **ERD** | `docs/erd.dbml` | ✅ 31 tabel, 10 groups |
+| **Wireframes Internal** | `docs/wireframes-internal.md` | ✅ 12 halaman |
 | **Wireframes Beswan** | `docs/wireframes-beswan.md` | ✅ 5 halaman |
 | **Wireframes Donatur** | `docs/wireframes-donatur.md` | ✅ 6 halaman |
 | **Color Palette & Design** | `docs/colorpalette.md` | ✅ Full design system |

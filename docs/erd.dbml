@@ -7,7 +7,7 @@ Table periode {
   semester int [note: '1 = Jan-Jun, 2 = Jul-Des']
   start_date date
   end_date date
-  status varchar
+  status varchar [note: 'aktif | selesai']
 }
 
 Table users {
@@ -41,18 +41,36 @@ Table beswan_periode {
   status varchar [note: 'aktif | alumni']
 }
 
+// IPK per semester (= per periode GBB). Beswan WAJIB update tiap semester via Profile
+// (ada alert di portal + email reminder). "IPK terbaru" yang tampil di layar = baris periode
+// terbaru; "Avg IPK" = rata-rata ipk terbaru beswan aktif.
+Table beswan_ipk {
+  id varchar [pk]
+  beswan_id varchar [ref: > beswan.id]
+  periode_id varchar [ref: > periode.id, note: 'semester (periode GBB) tempat IPK ini di-update']
+  ip_semester decimal [note: 'nullable — IP semester berjalan']
+  ipk decimal [note: 'IPK kumulatif s/d semester ini — angka yang tampil di Database Beswan & Portal Donatur']
+  transkrip_url varchar [note: 'nullable — bukti transkrip yang diupload beswan saat update IPK (pindahan dari refleksi)']
+  updated_at timestamp [note: 'kapan terakhir beswan update IPK semester ini']
+
+  indexes {
+    (beswan_id, periode_id) [unique]
+  }
+}
+
 // ─── DONATUR ─────────────────────────────────────────
 
 Table donatur {
   id varchar [pk]
+  user_id varchar [ref: > users.id, note: 'nullable — link ke akun login. Auto-set saat Gmail match email, atau di-set manual oleh admin AnC jika email berbeda (fallback admin-link)']
   kode varchar [unique, note: 'auto-generated, e.g. DLW12025 = [Inisial][Semester][Tahun]']
   nama varchar
-  email varchar [unique]
+  email varchar [unique, note: 'email dari Google Sheets / form pendaftaran — patokan auto-match saat OAuth login']
   hp varchar
   organisasi varchar
   nominal_default decimal [note: 'nominal default per bulan/skema']
   skema varchar [note: 'sebulan_patungan | semester_patungan | sebulan_donasi | semester_donasi | belum_bersedia']
-  is_checked boolean [default: false, note: 'tanda manual oleh admin, persisten di semua layar, untuk proses reminder']
+  is_checked boolean [default: false, note: 'tanda manual oleh admin, persisten di semua layar, untuk proses reminder. SUMBER badge "Sudah Ditandai" di Monitoring — bukan tag terpisah (donatur_tag.sudah_ditandai = cerminan flag ini, bukan di-assign manual)']
   catatan text [note: 'catatan internal dari AnC']
   created_at timestamp
 }
@@ -279,6 +297,8 @@ Table refleksi_pertanyaan {
 }
 
 // Header submission: 1 row = 1 beswan × 1 bulan × 1 periode.
+// Dokumentasi bulanan (foto/PDF kegiatan) disimpan sebagai jawaban pertanyaan `dokumentasi`
+// di refleksi_jawaban (JSON array URL) — bukan kolom khusus. Transkrip nilai pindah ke beswan_ipk.
 Table refleksi {
   id varchar [pk]
   beswan_id varchar [ref: > beswan.id]
@@ -286,7 +306,6 @@ Table refleksi {
   bulan int
   tahun int
   status varchar [note: 'draft | submitted']
-  transkrip_url varchar
   submitted_at timestamp
 }
 
@@ -296,7 +315,7 @@ Table refleksi_jawaban {
   id varchar [pk]
   refleksi_id varchar [ref: > refleksi.id]
   pertanyaan_id varchar [ref: > refleksi_pertanyaan.id]
-  nilai text [note: 'jawaban: text / angka skala / URL file / JSON multi-pilih']
+  nilai text [note: 'jawaban: text / angka skala / JSON array URL file (mis. dokumentasi multi-file) / JSON multi-pilih']
   created_at timestamp
 }
 
@@ -388,6 +407,21 @@ Table pesan_template {
   updated_at timestamp
 }
 
+// Konfigurasi penyedia AI (untuk auto-summary & auto-tag Library, dan fitur AI lain ke depan).
+// Multi-provider: admin pilih provider & isi API key di Settings → Konfigurasi AI. Satu baris `aktif` yang dipakai.
+Table ai_config {
+  id varchar [pk]
+  provider varchar [note: 'anthropic | openai_compatible — openai_compatible menjangkau OpenAI, Google Gemini (endpoint OpenAI-compat), OpenRouter (ratusan model), DeepSeek, Groq, dll lewat base_url']
+  label varchar [note: 'nama tampilan, e.g. "Claude Opus 4.8"']
+  model varchar [note: 'model id, e.g. claude-opus-4-8, gpt-4o, google/gemini-2.5-pro']
+  base_url varchar [note: 'nullable — untuk provider openai_compatible / endpoint kustom']
+  api_key_encrypted varchar [note: 'DIENKRIPSI at-rest, hanya didekripsi di server, TIDAK PERNAH dikirim ke client / masuk log']
+  aktif boolean [default: false, note: 'hanya 1 baris aktif yang dipakai fitur AI']
+  created_at timestamp
+  updated_at timestamp
+  updated_by varchar [ref: > users.id, note: 'nullable']
+}
+
 // ─── TABLE GROUPS ────────────────────────────────────
 
 TableGroup "Core" {
@@ -398,6 +432,7 @@ TableGroup "Core" {
 TableGroup "Beswan" {
   beswan
   beswan_periode
+  beswan_ipk
   refleksi_pertanyaan
   refleksi
   refleksi_jawaban
@@ -447,4 +482,5 @@ TableGroup "Sistem" {
   laporan
   notifikasi
   pesan_template
+  ai_config
 }

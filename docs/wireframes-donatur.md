@@ -29,6 +29,15 @@
 │  👋 Halo, Kak Ike! Terima kasih telah menjadi bagian dari      │
 │     perjalanan para beswan. Kontribusimu sangat berarti! 💚     │
 │                                                                 │
+│  ┌─ ℹ ────────────────────────────────────────────────────────┐ │
+│  │ Pastikan email Gmail yang kamu pakai login di portal ini   │ │
+│  │ SAMA dengan email saat mengisi form bit.ly/AlumniMauBantu. │ │
+│  │ Jika berbeda, hubungi Tim AnC agar akunmu dihubungkan,     │ │
+│  │ sehingga data beswan & donasi kamu tampil lengkap.         │ │
+│  │                                          [✕ Tutup]         │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│  (banner ini tampil saat pertama login, bisa di-dismiss)        │
+│                                                                 │
 │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐            │
 │  │ 💰 Rp 600.000│ │ 📊 4/4       │ │ 🏷 BBB1-BBB4 │            │
 │  │ Total Donasi │ │ Konsistensi  │ │ Batch        │            │
@@ -199,6 +208,6 @@
 │  Kode Donatur: IAH22024                                         │
 │  Batch: BBB1, BBB2, BBB3, BBB4                                  │
 │                                                                 │
-│  [🔑 Reset Password]                                            │
+│  🔵 Login via Google (tanpa password) — dikelola di akun Google │
 └─────────────────────────────────────────────────────────────────┘
 ```

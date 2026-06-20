@@ -35,6 +35,7 @@
 │  │ • Tugas baru: Essay Public Speaking (deadline 30 Sep)       ││
 │  │ • Tugas "Refleksi CV" sudah dinilai → Nilai: 85            ││
 │  │ • ⚠ Refleksi bulan September belum diisi!                  ││
+│  │ • ⚠ IPK semester ini belum diupdate — lengkapi di Profile  ││
 │  └─────────────────────────────────────────────────────────────┘│
 │                                                                 │
 │  ═══ My Events ═══════════════════════════════════════════════  │
@@ -140,6 +141,8 @@
 
 ## 4. Refleksi Bulanan
 
+> Form **dinamis** dari template `refleksi_pertanyaan` (17 pertanyaan seed, editable admin) — termasuk pertanyaan bersyarat & skala 1–10. Seed: `docs/seeds/refleksi_pertanyaan.seed.json`.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Refleksi Bulanan                                               │
@@ -148,37 +151,42 @@
 │                                                                 │
 │  Bulan: [September 2025 ▼]    Periode: BBB4                    │
 │                                                                 │
-│  ┌─── Form Refleksi ────────────────────────────────────────┐   │
+│  ┌─── Form Refleksi (17 pertanyaan, dinamis dari template) ──┐   │
 │  │                                                           │   │
-│  │ 1. Bagaimana kondisi akademikmu bulan ini?                │   │
-│  │ ┌───────────────────────────────────────────────────────┐ │   │
-│  │ │                                                       │ │   │
-│  │ └───────────────────────────────────────────────────────┘ │   │
+│  │ § Identitas Dasar                                         │   │
+│  │  1. Nama lengkap *           [Ahmad Fauzi] (auto-isi)     │   │
+│  │  2. Periode laporan bulan *  [September ▼]                │   │
 │  │                                                           │   │
-│  │ 2. Berapa IPK semester ini?                               │   │
-│  │ ┌──────────┐                                              │   │
-│  │ │ 3.45     │                                              │   │
-│  │ └──────────┘                                              │   │
+│  │ § Aktivitas Bulanan                                       │   │
+│  │  3. Kegiatan apa saja bulan ini? *      [textarea]        │   │
+│  │  4. Ikut lomba/kompetisi/seminar? * ( ) Ya  ( ) Tidak     │   │
+│  │  5. ↳ Nama lomba/kegiatan   (muncul jika Q4 = Ya)         │   │
+│  │  6. Prestasi/pencapaian bulan ini?      [__________]      │   │
+│  │  7. Ada organisasi/proker/volunteer/bisnis? *             │   │
+│  │       ( ) Ada   ( ) Tidak ada                             │   │
+│  │  8. ↳ Jelaskan kontribusimu  (muncul jika Q7 = Ada)       │   │
 │  │                                                           │   │
-│  │ 3. Kegiatan organisasi bulan ini?                         │   │
-│  │ ┌───────────────────────────────────────────────────────┐ │   │
-│  │ │                                                       │ │   │
-│  │ └───────────────────────────────────────────────────────┘ │   │
+│  │ § Refleksi & Evaluasi                                     │   │
+│  │  9. Capaian target bulan lalu? *  [dropdown 5 opsi]       │   │
+│  │ 10. Alasan di balik jawaban di atas?    [textarea]        │   │
+│  │ 11. Insight personal bulan ini? *       [textarea]        │   │
+│  │ 12. Aktivitas paling berkesan & kenapa? [textarea]        │   │
+│  │ 13. Skor kepuasan produktivitas * ◯─◯─◯─●─◯ (1–10)       │   │
+│  │ 14. Kendala bulan ini?                  [textarea]        │   │
+│  │ 15. Target/rencana bulan depan? *       [textarea]        │   │
 │  │                                                           │   │
-│  │ ... (pertanyaan 4-8) ...                                  │   │
+│  │ § Rencana & Masukan                                       │   │
+│  │ 16. Masukan/saran untuk program Beswan  [textarea]        │   │
 │  │                                                           │   │
-│  │ 9. Upload foto kegiatan bulan ini (wajib)                 │   │
-│  │ ┌─────────────────────────────────┐                       │   │
-│  │ │  📷 Drag & drop atau klik       │  foto1.jpg ✕          │   │
-│  │ │     untuk upload foto           │  foto2.jpg ✕          │   │
+│  │ § Dokumentasi                                             │   │
+│  │ 17. Upload dokumentasi kegiatan * (multi-file foto/PDF)   │   │
+│  │ ┌─────────────────────────────────┐ foto1.jpg ✕          │   │
+│  │ │ 📎 Drag & drop / klik upload    │ kegiatan.pdf ✕        │   │
+│  │ │    (jpg/png/pdf, ≤5MB/file)     │                       │   │
 │  │ └─────────────────────────────────┘                       │   │
+│  │ ℹ Transkrip nilai TIDAK di sini → di Profile (per sem.)   │   │
 │  │                                                           │   │
-│  │ 10. Upload transkrip nilai terbaru (wajib)                │   │
-│  │ ┌─────────────────────────────────┐                       │   │
-│  │ │  📎 Upload transkrip (.pdf)     │                       │   │
-│  │ └─────────────────────────────────┘                       │   │
-│  │                                                           │   │
-│  │                                    [Simpan Refleksi]      │   │
+│  │ * = wajib                          [Simpan Refleksi]      │   │
 │  └───────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │  ═══ Prestasiku ══════════════════════════════  [+ Tambah]      │
@@ -224,6 +232,18 @@
 │  │  ┌─────────────────────────────────┐                      │   │
 │  │  │  📎 Upload CV (.pdf)            │  cv_ahmad.pdf ✕      │   │
 │  │  └─────────────────────────────────┘                      │   │
+│  │                                                           │   │
+│  │  ── Akademik (wajib diupdate tiap semester) ───────────── │   │
+│  │  ⚠ IPK semester BBB4 (Jan–Jun 2026) belum diupdate        │   │
+│  │                                                           │   │
+│  │  IP Semester Ini          IPK Kumulatif *                 │   │
+│  │  ┌──────────┐             ┌──────────┐                    │   │
+│  │  │ 3.60     │             │ 3.45     │                    │   │
+│  │  └──────────┘             └──────────┘                    │   │
+│  │                                                           │   │
+│  │  Transkrip *  ┌──────────────────────────┐ transkrip.pdf✕│   │
+│  │               │ 📎 Upload (pdf/jpg/png)  │               │   │
+│  │               └──────────────────────────┘               │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```

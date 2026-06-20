@@ -156,6 +156,8 @@
 
 ## 2. Database Beswan
 
+> **Avg IPK** = rata-rata IPK kumulatif terbaru beswan aktif, dari `beswan_ipk` (beswan update tiap semester di Portal Beswan → Profile).
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Database Beswan                                  [+ Tambah]    │
@@ -378,6 +380,15 @@
 
 **Hak akses**: Super Admin & Admin Finance = upload/klasifikasi/edit/hapus/kelola kategori; AnC = view; PCM/Viewer = tidak ada akses.
 
+**Admin-link donatur account** (Database Donatur — kolom aksi per baris):
+- Jika donatur belum ter-link (`user_id` kosong): tombol **[🔗 Hubungkan Akun]** → modal dropdown user Gmail yang belum ter-link → set `donatur.user_id`
+- Jika sudah ter-link: ikon ✅ + tooltip "Terhubung ke {email Gmail}". Bisa di-unlink oleh admin
+
+**Alert donatur belum diklasifikasi (Database Donatur view)**:
+- Banner kuning di atas tabel donatur: "⚠️ {N} donatur belum masuk periode manapun — segera assign." Muncul jika ada donatur tanpa `donatur_periode` aktif.
+- Filter cepat: tombol **[Belum Diklasifikasi]** untuk menampilkan hanya donatur tanpa periode.
+- **Reminder musiman**: tiap masuk Juli-Agustus dan Desember-Januari (awal semester), dashboard Monitoring & Database Donatur menampilkan reminder "Saatnya update keikutsertaan donatur untuk periode baru" agar AnC mengecek siapa yang lanjut/berhenti.
+
 ---
 
 ## 8b. Overview Keuangan (read-only)
@@ -415,10 +426,16 @@
 │  Matriks keikutsertaan patungan + link pesan WhatsApp siap kirim│
 │                                                                 │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │
-│  │ 👥 98    │ │ ✅ 48    │ │ ⏳ 50    │ │ 📅 BBB #4        │   │
-│  │ Total    │ │ Aktif    │ │ Belum    │ │ (Jan–Jun 2026)   │   │
-│  │ Donatur  │ │ Periode  │ │ Periode  │ │ Periode Aktif    │   │
+│  │ 👥 98    │ │ ✅ 48    │ │ ⚠️ 12    │ │ 📅 Periode Aktif │   │
+│  │ Total    │ │ Aktif    │ │ Belum    │ │ BBB #4, BBB #3   │   │
+│  │ Donatur  │ │ Periode  │ │ Diklasif.│ │ (bisa >1)        │   │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────────────┘   │
+│                                                                 │
+│  ┌─ ⚠️ ───────────────────────────────────────────────────────┐ │
+│  │ 12 donatur belum diklasifikasi ke periode manapun.         │ │
+│  │ Segera assign di Database Donatur → kolom Periode.         │ │
+│  │ [Lihat Daftar]                                             │ │
+│  └────────────────────────────────────────────────────────────┘ │
 │                                                                 │
 │  ┌─ ℹ ────────────────────────────────────────────────────────┐ │
 │  │ Cara pakai: Klik Kirim → pilih template pesan (reminder,  │ │
@@ -467,3 +484,40 @@
 │  └───┴──────────────────────┴──────────┴────────┴──────┴───────┘│
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 11. Settings / Konfigurasi (admin)
+
+> Akses: **Super Admin only**. Sub-menu: Users & Role · Template Pesan WA · Master Kategori Cashflow · **Konfigurasi AI**.
+
+### Konfigurasi AI
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Settings › Konfigurasi AI                                      │
+│  Provider AI untuk auto-summary & auto-tag Library.             │
+│                                                                 │
+│  ┌───┬─────────────────┬───────────────────┬─────────┬───────┐  │
+│  │ ● │ Label           │ Model             │ Provider│ Aksi  │  │
+│  ├───┼─────────────────┼───────────────────┼─────────┼───────┤  │
+│  │ ◉ │ Claude Opus 4.8 │ claude-opus-4-8   │anthropic│ ✏ 🗑 │  │
+│  │ ○ │ GPT-4o          │ gpt-4o            │openai   │ ✏ 🗑 │  │
+│  │ ○ │ Gemini 2.5 Pro  │ google/gemini-2.5 │openai*  │ ✏ 🗑 │  │
+│  └───┴─────────────────┴───────────────────┴─────────┴───────┘  │
+│  ◉ = aktif (dipakai)   * = via base_url OpenAI-compatible       │
+│                                                  [+ Tambah]     │
+│                                                                 │
+│  ── Tambah / Edit Provider ──────────────────────────────────  │
+│  Provider:  [anthropic ▼]  (anthropic / openai_compatible)      │
+│  Label:     [Claude Opus 4.8            ]                       │
+│  Model:     [claude-opus-4-8            ]                       │
+│  Base URL:  [(kosong utk Anthropic)     ] ← isi utk compatible  │
+│  API Key:   [••••••••••••••••] 🔒 disimpan terenkripsi          │
+│                                                                 │
+│  [🔌 Test Koneksi]                  [Jadikan Aktif] [Simpan]    │
+└─────────────────────────────────────────────────────────────────┘
+```
+- API key **terenkripsi**, server-only, tak pernah tampil utuh setelah disimpan
+- 1 provider **aktif** dipakai fitur AI; tambah provider = tambah baris (tanpa ubah kode)
+- Kalau API gagal → materi tetap tersimpan tanpa summary (non-blocking, bisa retry)
