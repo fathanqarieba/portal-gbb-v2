@@ -73,6 +73,8 @@
 
 > Analitik pembinaan beswan untuk tim PCM — agregat (kumulatif) + bisa drill per beswan per periode.
 > Sumber: `event_beswan` (kehadiran), `hasil_penugasan` (nilai), `refleksi` (completion), `beswan_ipk` (IPK), `prestasi`.
+>
+> ⚠ Tab ini **read-only (analitik)**. Untuk **mengelola** beswan — tambah/edit, upload CV, generate kredensial login, assign periode, kelola Rapor/Absensi/Tugas/Refleksi — gunakan menu **👥 Database Beswan** (§2).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐

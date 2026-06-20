@@ -114,7 +114,8 @@ Single login → diarahkan ke portal sesuai role
 - Sumber data: tabel `event`, `event_beswan`, `penugasan`, `cashflow`
 
 #### Tab: Beswan
-- **Untuk tim PCM mengolah & mengevaluasi pembinaan beswan**
+- **Untuk tim PCM mengolah & mengevaluasi pembinaan beswan** (analitik **read-only**)
+- > Mengelola data beswan (tambah/edit, CV, kredensial, assign periode, rapor/absensi/tugas) = menu **Database Beswan** (Fase 1, Step 1.2), bukan di tab ini
 - Metric cards: Beswan Aktif, Avg Kehadiran, Avg IPK, Refleksi On-time
 - Chart (agregat/**kumulatif**): Tren Kehadiran per bulan, Refleksi Completion per bulan, Distribusi IPK, Rata-rata Nilai Tugas per batch
 - Tabel progress per beswan (kehadiran, nilai, refleksi, IPK, prestasi) → klik untuk detail
