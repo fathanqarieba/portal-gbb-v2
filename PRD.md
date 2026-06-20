@@ -113,9 +113,8 @@ Single login → diarahkan ke portal sesuai role
 - Chart: Event per Bulan (bar), Kehadiran Beswan (pie + progress), Penugasan Overview
 - Sumber data: tabel `event`, `event_beswan`, `penugasan`, `cashflow`
 
-#### Tab: Beswan
-- **Untuk tim PCM mengolah & mengevaluasi pembinaan beswan** (analitik **read-only**)
-- > Mengelola data beswan (tambah/edit, CV, kredensial, assign periode, rapor/absensi/tugas) = menu **Database Beswan** (Fase 1, Step 1.2), bukan di tab ini
+#### Tab: Analitik Beswan
+- **Analitik read-only untuk tim PCM** mengevaluasi pembinaan beswan (pengelolaan data ada di menu **Database Beswan**)
 - Metric cards: Beswan Aktif, Avg Kehadiran, Avg IPK, Refleksi On-time
 - Chart (agregat/**kumulatif**): Tren Kehadiran per bulan, Refleksi Completion per bulan, Distribusi IPK, Rata-rata Nilai Tugas per batch
 - Tabel progress per beswan (kehadiran, nilai, refleksi, IPK, prestasi) → klik untuk detail
@@ -545,7 +544,7 @@ Semua artefak desain sudah final — tidak ada open question tersisa.
 |------|---------------|---------|
 | 1 | Sidebar | "Ini sidebar navigasi. Semua menu portal bisa diakses dari sini." |
 | 2 | Periode selector (sidebar bawah) | "Pilih periode aktif di sini. Semua data di portal akan terfilter sesuai periode yang dipilih." |
-| 3 | Dashboard tab | "Dashboard punya 4 tab: Event (operasional), Beswan (analitik pembinaan untuk PCM), Trend Donatur (data pendaftaran), dan Growth (analitik peserta event)." |
+| 3 | Dashboard tab | "Dashboard punya 4 tab: Event (operasional), Analitik Beswan (pembinaan untuk PCM), Trend Donatur (data pendaftaran), dan Growth (analitik peserta event)." |
 | 4 | Notifikasi bell | "Klik bell untuk melihat notifikasi terbaru. Badge merah = ada yang belum dibaca." |
 | 5 | Menu Beswan | "Kelola data beswan di sini — tambah beswan, lihat detail profil, absensi, tugas, dan generate rapor." |
 | 6 | Menu Kurikulum | "Susun topik pembinaan per periode. Topik yang kamu buat akan jadi pilihan saat membuat event." |

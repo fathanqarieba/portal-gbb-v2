@@ -35,7 +35,7 @@
 
 ## 1. Dashboard
 
-> 4 tab: **Event** (data dari portal), **Beswan** (analitik pembinaan beswan — untuk PCM), **Trend Donatur** (data dari GSheets pendaftaran donatur), **Growth** (data dari GForm pendaftaran event)
+> 4 tab: **Event** (data dari portal), **Analitik Beswan** (pembinaan beswan — untuk PCM), **Trend Donatur** (data dari GSheets pendaftaran donatur), **Growth** (data dari GForm pendaftaran event)
 
 ### Tab: Event
 
@@ -43,7 +43,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │  Dashboard                                       [↻ Refresh]    │
 │                                                                 │
-│  [Tab: Event] [Tab: Beswan] [Tab: Trend Donatur] [Tab: Growth]  │
+│  [Tab: Event] [Tab: Analitik Beswan] [Tab: Trend Donatur] [Growth]│
 │                                                                 │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
 │  │ 📊 12    │ │ ✅ 8     │ │ 👥 15    │ │ 💰 4.2jt │           │
@@ -69,16 +69,15 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Tab: Beswan
+### Tab: Analitik Beswan
 
 > Analitik pembinaan beswan untuk tim PCM — agregat (kumulatif) + bisa drill per beswan per periode.
+> Read-only; pengelolaan data beswan ada di menu **👥 Database Beswan** (§2).
 > Sumber: `event_beswan` (kehadiran), `hasil_penugasan` (nilai), `refleksi` (completion), `beswan_ipk` (IPK), `prestasi`.
->
-> ⚠ Tab ini **read-only (analitik)**. Untuk **mengelola** beswan — tambah/edit, upload CV, generate kredensial login, assign periode, kelola Rapor/Absensi/Tugas/Refleksi — gunakan menu **👥 Database Beswan** (§2).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Dashboard › Beswan                              [↻ Refresh]    │
+│  Dashboard › Analitik Beswan                     [↻ Refresh]    │
 │  Filter: [BBB4 (Jan–Jun 2026) ▼]   Lihat: (•) Agregat ( ) Per Beswan │
 │                                                                 │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │

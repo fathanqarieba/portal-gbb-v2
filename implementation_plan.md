@@ -610,7 +610,7 @@ GBB/
 │   │   ├── internal/               # Portal Internal (isolated)
 │   │   │   ├── layout.tsx
 │   │   │   └── pages/              # 1 folder per halaman
-│   │   │       ├── dashboard/      # index + EventTab + BeswanTab + TrendDonaturTab + GrowthTab
+│   │   │       ├── dashboard/      # index + EventTab + AnalitikBeswanTab + TrendDonaturTab + GrowthTab
 │   │   │       ├── beswan/         # index + Table + Detail + Rapor
 │   │   │       ├── kurikulum/
 │   │   │       ├── mentor/
@@ -694,7 +694,7 @@ GBB/
 - **1D** Database Mentor (metrics, table, detail, feedback)
 - **1E** Event Talkshow (metrics, table, create wizard, alert)
 - **1F** Penugasan (master-detail, create wizard, grading)
-- **1G** Dashboard (4 tabs: Event, Beswan, Trend Donatur, Growth)
+- **1G** Dashboard (4 tabs: Event, Analitik Beswan, Trend Donatur, Growth)
 - **1H** Keuangan (BSI upload, klasifikasi, master kategori, Overview Keuangan)
 - **1I** Monitoring Donatur & Laporan
 - **1J** PWA: offline snapshot caching untuk dashboard
