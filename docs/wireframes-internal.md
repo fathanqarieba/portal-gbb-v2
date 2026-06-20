@@ -72,7 +72,7 @@
 ### Tab: Analitik Beswan
 
 > Analitik pembinaan beswan untuk tim PCM — agregat (kumulatif) + bisa drill per beswan per periode.
-> Read-only; pengelolaan data beswan ada di menu **👥 Database Beswan** (§2).
+> Read-only; pengelolaan data beswan ada di menu **👥 Database Beswan** (§3).
 > Sumber: `event_beswan` (kehadiran), `hasil_penugasan` (nilai), `refleksi` (completion), `beswan_ipk` (IPK), `prestasi`.
 
 ```
@@ -108,7 +108,7 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-> **Mode "Per Beswan"**: pilih 1 beswan → tampil progress chart kumulatif lintas periode (kehadiran, nilai tugas, IPK per semester, refleksi completion). Sama dengan grafik di tab Rapor (Detail Beswan §2a), dipakai PCM untuk mengolah/mengevaluasi tiap beswan.
+> **Mode "Per Beswan"**: pilih 1 beswan → tampil progress chart kumulatif lintas periode (kehadiran, nilai tugas, IPK per semester, refleksi completion). Sama dengan grafik di tab Rapor (Detail Beswan §3a), dipakai PCM untuk mengolah/mengevaluasi tiap beswan.
 
 ---
 
@@ -200,7 +200,7 @@
 
 ---
 
-## 1b. Konfigurasi Periode
+## 2. Konfigurasi Periode
 
 > Setup batch/periode (Step 1.1). Akses: Super Admin ✏️, PCM 👁. Bisa **>1 periode aktif**.
 
@@ -225,7 +225,7 @@
 
 ---
 
-## 2. Database Beswan
+## 3. Database Beswan
 
 > **Avg IPK** = rata-rata IPK kumulatif terbaru beswan aktif, dari `beswan_ipk` (beswan update tiap semester di Portal Beswan → Profile).
 
@@ -251,7 +251,7 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2a. Detail Beswan (Slide-over / Modal)
+### 3a. Detail Beswan (Slide-over / Modal)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -288,9 +288,11 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+> Tab **Tugas**: daftar penugasan beswan + nilai & status per tugas. Tab **Refleksi**: status submit per bulan + isi jawaban refleksi (read-only untuk internal). Keduanya juga jadi sumber Rapor.
+
 ---
 
-## 3. Kurikulum & Library
+## 4. Kurikulum & Library
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -334,7 +336,7 @@
 
 ---
 
-## 4. Database Mentor
+## 5. Database Mentor
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -356,9 +358,27 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### 5a. Detail Mentor (Slide-over / Modal)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ← Kembali              Dr. Rini                       [✏ Edit] │
+│  Bidang: Public Speaking · 🌐 non-UNDIP · 🔗 LinkedIn           │
+│  Email: rini@mail.com · HP: 0812… · CV: 📎 Download             │
+│                                                                 │
+│  ── History Event (3) ───────────────────────────────────────  │
+│  │ Event              │ Tanggal │ Peran    │ Avg Feedback │     │
+│  │ CV Writing         │ 15/09   │ Speaker  │ 4.8 ⭐       │     │
+│  │ Public Speaking    │ 22/09   │ Speaker  │ 4.7 ⭐       │     │
+│                                                                 │
+│  ── Feedback Terkumpul (extracted dari form peserta) ────────  │
+│  "Penjelasan jelas & aplikatif…"  ·  "Interaktif, seru…"        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
-## 5. Event Talkshow
+## 6. Event Talkshow
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -386,9 +406,49 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### 6a. Buat Event (Wizard / Modal)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Buat Event                                                     │
+│  Periode: [BBB4 ▼]   Topik kurikulum: [CV Writing ▼ / —]       │
+│  (pilih topik → kode & periode auto; kosongkan = non-kurikulum) │
+│                                                                 │
+│  Nama Event:  [_____________________________]                   │
+│  Tipe: [Talkshow ▼]   Format: [Online ▼]                       │
+│  Tanggal: [__/__/__]  Jam: [__:__]–[__:__]   Kapasitas: [__]   │
+│  Lokasi/Link: [_____________________________]                   │
+│  Deskripsi: [textarea]                                          │
+│                                                                 │
+│  Mentor (≥1):                              [+ Tambah Mentor]    │
+│   • Dr. Rini  — [Speaker ▼]    ✕                                │
+│   • Farhat    — [Moderator ▼]  ✕                                │
+│                                       [Batal] [Simpan Event]    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 6b. Detail Event — Absensi & Pasca Event
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ← Kembali    EVT-BBB4-03 · Interview Prep          [✏ Edit]   │
+│  Status: [Upcoming ▼ → Done]    📅 10 Okt 2025 · Online         │
+│                                                                 │
+│  ── Absensi Beswan ──────────────────────────────────────────  │
+│  │ Beswan          │ Hadir │                                    │
+│  │ Ahmad Fauzi     │  ☑    │                                    │
+│  │ Siti Nurhaliza  │  ☐    │            [💾 Simpan Absensi]     │
+│                                                                 │
+│  ── Pasca Event ─────────────────────────────────────────────  │
+│  YouTube URL: [________________]   Slide: [📎 Upload / URL]     │
+│  ⚠ Status "Done" tapi rekaman/slide kosong → muncul alert       │
+│  ℹ Materi otomatis masuk Library (AI summary + auto-tag)        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
-## 6. Penugasan (Master-Detail)
+## 7. Penugasan (Master-Detail)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -423,7 +483,7 @@
 
 ---
 
-## 7-8. Keuangan (Rekonsiliasi, Database Donatur)
+## 8. Keuangan — Rekonsiliasi (Klasifikasi Cashflow)
 
 > ℹ Layout dasar (wizard 3 langkah, metric cards, tabel, filter) mengacu pada screenshot yang sudah ada.
 > Tambahan/penegasan di bawah ini melengkapi elemen yang **belum tergambar di foto**.
@@ -459,18 +519,9 @@
 
 **Hak akses**: Super Admin & Admin Finance = upload/klasifikasi/edit/hapus/kelola kategori; AnC = view; PCM/Viewer = tidak ada akses.
 
-**Admin-link donatur account** (Database Donatur — kolom aksi per baris):
-- Jika donatur belum ter-link (`user_id` kosong): tombol **[🔗 Hubungkan Akun]** → modal dropdown user Gmail yang belum ter-link → set `donatur.user_id`
-- Jika sudah ter-link: ikon ✅ + tooltip "Terhubung ke {email Gmail}". Bisa di-unlink oleh admin
-
-**Alert donatur belum diklasifikasi (Database Donatur view)**:
-- Banner kuning di atas tabel donatur: "⚠️ {N} donatur belum masuk periode manapun — segera assign." Muncul jika ada donatur tanpa `donatur_periode` aktif.
-- Filter cepat: tombol **[Belum Diklasifikasi]** untuk menampilkan hanya donatur tanpa periode.
-- **Reminder musiman**: tiap masuk Juli-Agustus dan Desember-Januari (awal semester), dashboard Monitoring & Database Donatur menampilkan reminder "Saatnya update keikutsertaan donatur untuk periode baru" agar AnC mengecek siapa yang lanjut/berhenti.
-
 ---
 
-## 8b. Overview Keuangan (read-only)
+## 9. Overview Keuangan (read-only)
 
 > Sub-menu Keuangan. Ringkasan arus kas dari `cashflow` yang sudah `inputted`. Filter: periode / rentang bulan / tahun.
 
@@ -497,7 +548,55 @@
 
 ---
 
-## 9. Monitoring Donatur
+## 10. Database Donatur
+
+> Kelola profil & **keikutsertaan donatur per periode** (AnC). Akses: Super Admin ✏️, AnC ✏️, Finance/Viewer 👁.
+> Beda dengan **Monitoring** (§11): di sini fokus data & klasifikasi periode; di Monitoring fokus reminder donasi (WA) per bulan.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Database Donatur                                  [+ Tambah]   │
+│                                                                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
+│  │ 👥 98    │ │ ✅ 48    │ │ ⚠️ 12    │ │ 🔗 7     │           │
+│  │ Total    │ │ Aktif    │ │ Belum    │ │ Belum    │           │
+│  │ Donatur  │ │ Periode  │ │ Diklasif.│ │ Ter-link │           │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
+│                                                                 │
+│  ┌─ ⚠️ ───────────────────────────────────────────────────────┐ │
+│  │ 12 donatur belum masuk periode manapun — segera assign.    │ │
+│  │ (Awal semester Jul–Agt & Des–Jan: muncul reminder update   │ │
+│  │  keikutsertaan donatur untuk periode baru.)                │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                 │
+│  🔍 Cari nama/kode/email  [Semua Periode ▼] [Semua Skema ▼]    │
+│                     [Belum Diklasifikasi] [Belum Ter-link]      │
+│                                                                 │
+│  ┌────────────────┬────────┬───────────┬─────┬─────┬──────┬────┐ │
+│  │ Nama           │ Kode   │ Skema     │BBB4 │BBB3 │ Akun │Aks │ │
+│  ├────────────────┼────────┼───────────┼─────┼─────┼──────┼────┤ │
+│  │ Ike A.H.P.     │IAH22024│ Sebulan   │ ☑  │ ☑  │ ✅   │✏🏷│ │
+│  │ ⭐Donatur Setia│        │ Patungan  │     │     │ike@…│    │ │
+│  │ Dendy L.W.     │DLW12025│ 1Sem Pat. │ ☐  │ ☑  │🔗Link│✏🏷│ │
+│  │ Rara (baru)    │  —     │ belum     │ ☐  │ ☐  │🔗Link│✏🏷│ │
+│  │ ⚠ blm diklasif.│        │ bersedia  │     │     │      │    │ │
+│  └────────────────┴────────┴───────────┴─────┴─────┴──────┴────┘ │
+│                                          [< 1 2 3 ... >]        │
+│  Kolom periode (BBB4, BBB3, …) muncul OTOMATIS saat periode      │
+│  baru dibuat. ☑/☐ = centang keikutsertaan donatur per periode.  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Aksi per baris:**
+- **✏ Edit** → profil internal + catatan, centang keikutsertaan per periode (`donatur_periode`), override skema/nominal per periode
+- **🏷 Tag** → assign tag (Donatur Setia, Perlu Follow-Up, dll); badge ⭐/⚠ tampil di kolom Nama
+- **Akun** → belum ter-link (`user_id` kosong): tombol **🔗 Link** → pilih user Gmail yang login tapi email beda → set `donatur.user_id`. Sudah ter-link: ✅ + email Gmail (bisa di-unlink)
+
+**Sumber data**: profil (nama, email, HP, organisasi, skema) **di-mirror** dari Google Sheets (read-only, key = email). Kode/periode/tag/catatan/akun dikelola di portal & **tidak pernah ditimpa** sync. Donatur yang hilang dari Sheet **tidak dihapus**.
+
+---
+
+## 11. Monitoring Donatur
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -546,7 +645,7 @@
 
 ---
 
-## 10. Laporan
+## 12. Laporan
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -566,9 +665,69 @@
 
 ---
 
-## 11. Settings / Konfigurasi (admin)
+## 13. Settings / Konfigurasi (admin)
 
 > Akses: **Super Admin only**. Sub-menu: Users & Role · Template Pesan WA · Master Kategori Cashflow · **Konfigurasi AI**.
+
+### Users & Role
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Settings › Users & Role                          [+ Tambah]    │
+│  ┌────────────────┬──────────────────────┬───────────┬───────┐  │
+│  │ Nama           │ Email                │ Role      │ Aksi  │  │
+│  ├────────────────┼──────────────────────┼───────────┼───────┤  │
+│  │ Fathan Q.      │ fathan@…             │ admin ▼   │ ✏ 🗑 │  │
+│  │ Dewi Jihan     │ dewijihan@…          │ pcm ▼     │ ✏ 🗑 │  │
+│  │ Risky P.       │ riskypriscilia@…     │ anc ▼     │ ✏ 🗑 │  │
+│  │ Finance Legal  │ legalfinance@…       │ finance ▼ │ ✏ 🗑 │  │
+│  └────────────────┴──────────────────────┴───────────┴───────┘  │
+│  Role: admin · pcm · finance · anc · viewer                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Template Pesan WA
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Settings › Template Pesan WA                     [+ Tambah]    │
+│  ┌──┬─────────────────────┬─────────┬───────┬───────┐           │
+│  │≡ │ Nama Template       │ Default │ Aktif │ Aksi  │           │
+│  ├──┼─────────────────────┼─────────┼───────┼───────┤           │
+│  │≡ │ Reminder Awal Bulan │   ◉     │  ✅   │ ✏ 🗑 │           │
+│  │≡ │ Follow-up Transfer  │   ○     │  ✅   │ ✏ 🗑 │           │
+│  └──┴─────────────────────┴─────────┴───────┴───────┘           │
+│  ≡ = drag untuk re-order                                         │
+│                                                                 │
+│  ── Editor ──────────────────────────────────────────────────  │
+│  Nama: [Reminder Awal Bulan]                                    │
+│  Isi:  ┌────────────────────────────────────────────────────┐  │
+│        │ Halo Kak {nama} 👋, reminder donasi {bulan} ya…    │  │
+│        └────────────────────────────────────────────────────┘  │
+│  Placeholder: {nama} {kode} {bulan} {bulan_berikutnya} {nominal}│
+│  ☑ Emoji didukung (UTF-8)        [Jadikan Default] [Simpan]    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Master Kategori Cashflow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Settings › Master Kategori Cashflow              [+ Kategori]  │
+│  ┌──────────────────────────┬──────────┬───────┬───────┐        │
+│  │ Kategori / Sub            │ Tipe     │ Aktif │ Aksi  │        │
+│  ├──────────────────────────┼──────────┼───────┼───────┤        │
+│  │ Donasi                    │ cash_in  │  ✅   │ ✏ 🗑 │        │
+│  │ Bagi Hasil                │ cash_in  │  ✅   │ ✏ 🗑 │        │
+│  │ Pengembalian              │ cash_in  │  ✅   │ ✏ 🗑 │        │
+│  │ Beasiswa                  │ cash_out │  ✅   │ ✏ 🗑 │        │
+│  │ Biaya Operasional         │ cash_out │  ✅   │ ✏ 🗑 │        │
+│  │  └ Pembinaan (sub)        │ cash_out │  ✅   │ ✏ 🗑 │        │
+│  │  └ Administrasi (sub)     │ cash_out │  ✅   │ ✏ 🗑 │        │
+│  └──────────────────────────┴──────────┴───────┴───────┘        │
+│  Nonaktifkan (bukan hapus) jika sudah dipakai transaksi lama.    │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Konfigurasi AI
 
